@@ -232,3 +232,33 @@ input:focus, select:focus, textarea:focus {
     overflow-y: auto !important;
   }
 }
+
+/* 移动端专属自适应响应式规范 (解决小屏按钮溢出与截断) */
+@media (max-width: 640px) {
+  .desktop-workstation-container {
+    padding: 14px 12px 90px !important;
+  }
+
+  /* 移动端表格横向自适应滚动容器 */
+  .table-responsive-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .table-responsive-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 移动端紧凑卡片 */
+  .mobile-card-compact {
+    padding: 14px !important;
+  }
+
+  /* 移动端强制换行 */
+  .mobile-btn-wrap {
+    flex-wrap: wrap !important;
+  }
+}
+

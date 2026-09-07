@@ -282,15 +282,18 @@ export const MuscleHeatmap: React.FC<MuscleHeatmapProps> = ({
   const activeDetail = activeHoverOrSelected ? getMuscleInfo(activeHoverOrSelected) : null;
 
   return (
-    <div style={{
-      backgroundColor: 'var(--bg-surface)',
-      borderRadius: 'var(--radius-xl)',
-      border: '1px solid var(--border-subtle)',
-      padding: '24px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '20px'
-    }}>
+    <div 
+      className="mobile-card-compact"
+      style={{
+        backgroundColor: 'var(--bg-surface)',
+        borderRadius: 'var(--radius-xl)',
+        border: '1px solid var(--border-subtle)',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px'
+      }}
+    >
       {/* 顶部控制栏：时间范围与视角切换 */}
       <div style={{
         display: 'flex',
@@ -308,7 +311,8 @@ export const MuscleHeatmap: React.FC<MuscleHeatmapProps> = ({
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* 控制按钮组 (支持自适应换行，防止窄屏溢出) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           {/* 时间范围切换 */}
           <div style={{
             display: 'flex',
@@ -358,7 +362,7 @@ export const MuscleHeatmap: React.FC<MuscleHeatmapProps> = ({
                 cursor: 'pointer'
               }}
             >
-              全部并排
+              并排
             </button>
             <button
               onClick={() => setActiveView('anterior')}
@@ -394,11 +398,11 @@ export const MuscleHeatmap: React.FC<MuscleHeatmapProps> = ({
         </div>
       </div>
 
-      {/* SVG 解剖图展示区 */}
+      {/* SVG 解剖图展示区 (自适应 130px 最小网格) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: activeView === 'both' ? 'repeat(auto-fit, minmax(160px, 1fr))' : '1fr',
-        gap: '24px',
+        gridTemplateColumns: activeView === 'both' ? 'repeat(auto-fit, minmax(130px, 1fr))' : '1fr',
+        gap: '16px',
         justifyContent: 'center',
         padding: '16px 0',
         backgroundColor: 'rgba(7, 8, 11, 0.4)',
@@ -412,8 +416,8 @@ export const MuscleHeatmap: React.FC<MuscleHeatmapProps> = ({
       {/* 色彩负荷阶梯图例与实时状态浮标 */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-        gap: '10px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))',
+        gap: '8px',
         paddingTop: '4px'
       }}>
         {(['recovery', 'maintenance', 'hypertrophy', 'fatigue'] as const).map(st => {

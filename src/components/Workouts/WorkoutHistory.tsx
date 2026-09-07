@@ -83,6 +83,7 @@ export const WorkoutHistory: React.FC = () => {
             return (
               <div
                 key={workout.id}
+                className="mobile-card-compact"
                 style={{
                   backgroundColor: 'var(--bg-surface)',
                   borderRadius: 'var(--radius-lg)',
@@ -94,7 +95,7 @@ export const WorkoutHistory: React.FC = () => {
                   boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
                   <div>
                     <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
                       {workout.name}
@@ -117,37 +118,37 @@ export const WorkoutHistory: React.FC = () => {
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr 1fr',
-                  gap: '12px',
+                  gap: '8px',
                   backgroundColor: 'var(--bg-dark)',
                   borderRadius: 'var(--radius-md)',
-                  padding: '14px 18px',
+                  padding: '12px 14px',
                   border: '1px solid var(--border-subtle)',
                   textAlign: 'center'
                 }}>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>训练耗时</div>
-                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginTop: '3px' }} className="font-mono">
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-main)', marginTop: '3px' }} className="font-mono">
                       {formatDuration(workout.durationSeconds)}
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>有效总容量</div>
-                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--neon-green)', marginTop: '3px' }} className="font-mono">
-                      {workout.totalVolumeKg} <span style={{ fontSize: '11px' }}>kg</span>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--neon-green)', marginTop: '3px' }} className="font-mono">
+                      {workout.totalVolumeKg} <span style={{ fontSize: '10px' }}>kg</span>
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>打卡总组数</div>
-                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginTop: '3px' }} className="font-mono">
-                      {workout.setsCount} <span style={{ fontSize: '11px' }}>组</span>
+                    <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-main)', marginTop: '3px' }} className="font-mono">
+                      {workout.setsCount} <span style={{ fontSize: '10px' }}>组</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 各动作具体记录明细 */}
+                {/* 各动作具体记录明细 (支持 240px 移动端自适应) */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
                   gap: '8px'
                 }}>
                   {exerciseIds.map(exId => {

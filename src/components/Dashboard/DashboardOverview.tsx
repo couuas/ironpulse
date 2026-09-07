@@ -120,14 +120,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <button
             onClick={() => onNavigate('analytics')}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              padding: '9px 16px',
+              gap: '6px',
+              padding: '8px 14px',
               borderRadius: '10px',
               backgroundColor: 'rgba(34, 197, 94, 0.12)',
               border: '1px solid var(--neon-green)',
@@ -147,8 +147,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              padding: '9px 16px',
+              gap: '6px',
+              padding: '8px 14px',
               borderRadius: '10px',
               backgroundColor: 'var(--bg-surface)',
               border: '1px solid var(--border-medium)',
@@ -164,12 +164,12 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         </div>
       </div>
 
-      {/* 四大核心数据看板统计卡 */}
+      {/* 四大核心数据看板统计卡 (支持小屏自适应) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '16px',
-        marginBottom: '32px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '12px',
+        marginBottom: '28px'
       }}>
         <div style={statCardStyle}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>

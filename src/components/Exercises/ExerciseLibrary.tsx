@@ -170,10 +170,10 @@ export const ExerciseLibrary: React.FC = () => {
         </div>
       </div>
 
-      {/* 大屏多列动作卡片网格 (Desktop Multi-Column Grid) */}
+      {/* 大屏多列动作卡片网格 (支持 280px 移动端自适应) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
         gap: '16px'
       }}>
         {filteredExercises.length === 0 ? (

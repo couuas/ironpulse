@@ -166,7 +166,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onNaviga
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <span style={{
             fontSize: '11px',
             fontWeight: 800,
@@ -194,11 +194,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onNaviga
         </div>
       </div>
 
-      {/* 四大核心指标卡片条 (KPI Ribbon) */}
+      {/* 四大核心指标卡片条 (KPI Ribbon - 支持小屏 145px 自适应 2x2 网格) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: '16px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))',
+        gap: '12px'
       }}>
         <div style={kpiCardStyle}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>

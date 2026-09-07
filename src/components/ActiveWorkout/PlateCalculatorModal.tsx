@@ -86,8 +86,8 @@ export const PlateCalculatorModal: React.FC<PlateCalculatorModalProps> = ({
             </div>
           </div>
 
-          {/* 快速增减权重按钮 */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}>
+          {/* 快速增减权重按钮 (支持自适应换行，杜绝小屏溢出) */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
             <button onClick={() => adjustWeight(-10)} style={stepBtnStyle}>-10</button>
             <button onClick={() => adjustWeight(-2.5)} style={stepBtnStyle}>-2.5</button>
             <button onClick={() => adjustWeight(-1.25)} style={stepBtnStyle}>-1.25</button>
@@ -96,16 +96,16 @@ export const PlateCalculatorModal: React.FC<PlateCalculatorModalProps> = ({
             <button onClick={() => adjustWeight(10)} style={stepBtnStyle}>+10</button>
           </div>
 
-          {/* 空杆重量选择 */}
+          {/* 空杆重量选择 (自适应网格) */}
           <div style={{ marginBottom: '20px' }}>
             <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '8px' }}>
               选择杠铃杆规格:
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(95px, 1fr))', gap: '8px' }}>
               {[
                 { weight: 20, label: '标准奥杆 (20kg)' },
-                { weight: 15, label: '女子/轻量杆 (15kg)' },
-                { weight: 10, label: '短杆/曲杆 (10kg)' }
+                { weight: 15, label: '轻量杆 (15kg)' },
+                { weight: 10, label: '短杆 (10kg)' }
               ].map(b => (
                 <button
                   key={b.weight}

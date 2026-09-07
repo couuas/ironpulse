@@ -119,19 +119,20 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
         backdropFilter: 'blur(20px)',
         border: '1px solid var(--border-subtle)',
         borderRadius: 'var(--radius-lg)',
-        padding: '14px 20px',
-        marginBottom: '24px',
+        padding: '12px 16px',
+        marginBottom: '20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '16px',
+        gap: '12px',
+        flexWrap: 'wrap',
         boxShadow: '0 8px 30px rgba(0,0,0,0.4)'
       }}>
-        <div>
+        <div style={{ minWidth: '220px', flex: '1 1 auto' }}>
           <div style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>{activeWorkout.name}</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '4px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px', fontSize: '13px', color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '5px', color: 'var(--neon-green)', fontWeight: 700 }} className="font-mono">
               <Clock size={14} />
               {formatDuration(elapsedSeconds)}
@@ -143,11 +144,11 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           <button
             onClick={handleConfirmCancel}
             style={{
-              padding: '8px 14px',
+              padding: '8px 12px',
               borderRadius: '9px',
               backgroundColor: 'var(--bg-surface-hover)',
               border: '1px solid var(--border-subtle)',
@@ -161,11 +162,11 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
           <button
             onClick={handleConfirmFinish}
             style={{
-              padding: '9px 20px',
+              padding: '8px 16px',
               borderRadius: '10px',
               backgroundColor: 'var(--neon-green)',
               color: '#07080b',
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: 800,
               boxShadow: '0 0 16px var(--neon-green-glow)'
             }}
@@ -299,50 +300,51 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                     </div>
                   </div>
 
-                  {/* 组数列表表格 */}
-                  <div style={{ padding: '12px 16px' }}>
-                    {/* 表头 */}
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: '46px 1.2fr 1.4fr 1.2fr 48px',
-                      gap: '10px',
-                      padding: '8px 6px',
-                      fontSize: '12px',
-                      color: 'var(--text-dim)',
-                      fontWeight: 700,
-                      textAlign: 'center'
-                    }}>
-                      <div>组别</div>
-                      <div>上次记录</div>
-                      <div>重量 (kg)</div>
-                      <div>次数 (reps)</div>
-                      <div>完成</div>
-                    </div>
+                  {/* 组数列表表格 (支持横向安全滑动，保证小屏永远完整展示) */}
+                  <div className="table-responsive-wrapper" style={{ padding: '10px 4px' }}>
+                    <div style={{ minWidth: '330px' }}>
+                      {/* 表头 */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '40px 1.1fr 1.3fr 1.1fr 44px',
+                        gap: '6px',
+                        padding: '8px 4px',
+                        fontSize: '12px',
+                        color: 'var(--text-dim)',
+                        fontWeight: 700,
+                        textAlign: 'center'
+                      }}>
+                        <div>组别</div>
+                        <div>上次记录</div>
+                        <div>重量 (kg)</div>
+                        <div>次数 (reps)</div>
+                        <div>完成</div>
+                      </div>
 
-                    {/* 组数据行 */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {sets.map((set, setIdx) => {
-                        const ghost = ghostSets[setIdx];
+                      {/* 组数据行 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {sets.map((set, setIdx) => {
+                          const ghost = ghostSets[setIdx];
 
-                        return (
-                          <div
-                            key={set.id}
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns: '46px 1.2fr 1.4fr 1.2fr 48px',
-                              gap: '10px',
-                              alignItems: 'center',
-                              padding: '8px 6px',
-                              borderRadius: 'var(--radius-sm)',
-                              backgroundColor: set.isCompleted 
-                                ? 'rgba(34, 197, 94, 0.08)' 
-                                : 'var(--bg-surface-hover)',
-                              border: set.isCompleted 
-                                ? '1px solid rgba(34, 197, 94, 0.3)' 
-                                : '1px solid transparent',
-                              transition: 'all 0.15s ease'
-                            }}
-                          >
+                          return (
+                            <div
+                              key={set.id}
+                              style={{
+                                display: 'grid',
+                                gridTemplateColumns: '40px 1.1fr 1.3fr 1.1fr 44px',
+                                gap: '6px',
+                                alignItems: 'center',
+                                padding: '8px 4px',
+                                borderRadius: 'var(--radius-sm)',
+                                backgroundColor: set.isCompleted 
+                                  ? 'rgba(34, 197, 94, 0.08)' 
+                                  : 'var(--bg-surface-hover)',
+                                border: set.isCompleted 
+                                  ? '1px solid rgba(34, 197, 94, 0.3)' 
+                                  : '1px solid transparent',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
                             {/* 组类型与组号切换 */}
                             <div 
                               onClick={() => {
@@ -382,7 +384,7 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                             </div>
 
                             {/* 重量列及步进按钮 */}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
                               <button
                                 onClick={() => updateSet(set.id, { weightKg: Math.max(0, Math.round((set.weightKg - 2.5) * 10) / 10) })}
                                 style={stepBtnStyle}
@@ -395,11 +397,11 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                                 value={set.weightKg}
                                 onChange={e => updateSet(set.id, { weightKg: parseFloat(e.target.value) || 0 })}
                                 style={{
-                                  width: '56px',
+                                  width: '50px',
                                   textAlign: 'center',
-                                  padding: '6px 2px',
+                                  padding: '5px 1px',
                                   fontWeight: 800,
-                                  fontSize: '14px'
+                                  fontSize: '13px'
                                 }}
                                 className="font-mono"
                               />
@@ -412,7 +414,7 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                             </div>
 
                             {/* 次数列及步进按钮 */}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
                               <button
                                 onClick={() => updateSet(set.id, { reps: Math.max(0, set.reps - 1) })}
                                 style={stepBtnStyle}
@@ -424,11 +426,11 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                                 value={set.reps}
                                 onChange={e => updateSet(set.id, { reps: parseInt(e.target.value) || 0 })}
                                 style={{
-                                  width: '46px',
+                                  width: '40px',
                                   textAlign: 'center',
-                                  padding: '6px 2px',
+                                  padding: '5px 1px',
                                   fontWeight: 800,
-                                  fontSize: '14px'
+                                  fontSize: '13px'
                                 }}
                                 className="font-mono"
                               />
@@ -440,22 +442,21 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                               </button>
                             </div>
 
-                            {/* 单手打勾大按钮 (严格 >= 48px) */}
+                            {/* 单手极速打卡按钮 */}
                             <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
                               <button
                                 onClick={() => toggleSetCompleted(set.id)}
                                 style={{
-                                  width: '48px',
-                                  height: '48px',
-                                  borderRadius: '13px',
+                                  width: '44px',
+                                  height: '44px',
+                                  borderRadius: '12px',
+                                  backgroundColor: set.isCompleted ? 'var(--neon-green)' : 'var(--bg-surface-hover)',
+                                  color: set.isCompleted ? '#07080b' : 'var(--text-dim)',
+                                  border: set.isCompleted ? 'none' : '1px solid var(--border-medium)',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  backgroundColor: set.isCompleted ? 'var(--neon-green)' : 'rgba(255, 255, 255, 0.05)',
-                                  border: set.isCompleted ? 'none' : '1px solid var(--border-light)',
-                                  color: set.isCompleted ? '#07080b' : 'var(--text-dim)',
                                   cursor: 'pointer',
-                                  transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                                 }}
                               >
                                 <Check size={24} strokeWidth={set.isCompleted ? 3.2 : 2} />
@@ -475,9 +476,10 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                         );
                       })}
                     </div>
+                    </div>
 
                     {/* 底部：添加一组 与 删除末组 */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', padding: '0 4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', padding: '0 4px', flexWrap: 'wrap', gap: '8px' }}>
                       <button
                         onClick={() => addSet(exercise.id)}
                         style={{
@@ -813,18 +815,19 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
 };
 
 const stepBtnStyle: React.CSSProperties = {
-  width: '28px',
-  height: '32px',
-  borderRadius: '8px',
+  width: '24px',
+  height: '30px',
+  borderRadius: '6px',
   backgroundColor: 'var(--bg-surface)',
   border: '1px solid var(--border-light)',
   color: 'var(--text-secondary)',
-  fontSize: '15px',
+  fontSize: '14px',
   fontWeight: 800,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  cursor: 'pointer'
+  cursor: 'pointer',
+  flexShrink: 0
 };
 
 function getPlateHeight(weight: number): string {

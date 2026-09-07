@@ -114,10 +114,10 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
         </button>
       </div>
 
-      {/* 大屏响应式多列卡片网格 */}
+      {/* 大屏响应式多列卡片网格 (支持 280px 移动端自适应) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
         gap: '20px'
       }}>
         {routines.map(routine => (

@@ -312,6 +312,8 @@ const mobileTabStyle = (active: boolean): React.CSSProperties => ({
   fontWeight: active ? 700 : 500,
   color: active ? 'var(--neon-green)' : 'var(--text-dim)',
   flex: 1,
+  minWidth: 0,
+  padding: '0 2px',
   height: '100%',
   cursor: 'pointer'
 });

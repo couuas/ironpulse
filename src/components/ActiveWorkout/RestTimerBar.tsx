@@ -51,28 +51,29 @@ export const RestTimerBar: React.FC = () => {
       </div>
 
       <div style={{
-        padding: '12px 16px',
+        padding: '10px 12px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '12px'
+        gap: '8px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
           <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '10px',
+            width: '34px',
+            height: '34px',
+            borderRadius: '9px',
             backgroundColor: 'var(--neon-green-dim)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--neon-green)'
+            color: 'var(--neon-green)',
+            flexShrink: 0
           }}>
-            <Timer size={20} />
+            <Timer size={18} />
           </div>
-          <div>
+          <div style={{ minWidth: 0 }}>
             <div style={{
-              fontSize: '20px',
+              fontSize: '18px',
               fontWeight: 800,
               fontFamily: 'var(--font-mono)',
               color: restTimer.remainingSeconds <= 5 ? '#f43f5e' : 'var(--text-main)',
@@ -80,14 +81,22 @@ export const RestTimerBar: React.FC = () => {
             }}>
               {formatDuration(restTimer.remainingSeconds)}
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-              {restTimer.exerciseName ? `${restTimer.exerciseName} · 组间休息` : '组间恢复中'}
+            <div style={{
+              fontSize: '11px',
+              color: 'var(--text-muted)',
+              marginTop: '2px',
+              maxWidth: '110px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {restTimer.exerciseName ? `${restTimer.exerciseName} · 休息` : '组间恢复中'}
             </div>
           </div>
         </div>
 
-        {/* 快捷增减秒数与跳过操作区 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        {/* 快捷增减秒数与跳过操作区 (防溢出 flexShrink: 0) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
           <button
             onClick={() => adjustRestTimer(-30)}
             style={actionBtnStyle}
@@ -104,21 +113,22 @@ export const RestTimerBar: React.FC = () => {
           </button>
           <button
             onClick={toggleSound}
-            style={{ ...actionBtnStyle, width: '32px', padding: 0 }}
+            style={{ ...actionBtnStyle, width: '28px', padding: 0 }}
             title="提示音开关"
           >
-            {soundOn ? <Volume2 size={16} color="var(--neon-green)" /> : <VolumeX size={16} color="var(--text-dim)" />}
+            {soundOn ? <Volume2 size={15} color="var(--neon-green)" /> : <VolumeX size={15} color="var(--text-dim)" />}
           </button>
           <button
             onClick={stopRestTimer}
             style={{
-              padding: '6px 12px',
-              borderRadius: '8px',
+              padding: '5px 10px',
+              borderRadius: '7px',
               backgroundColor: 'var(--neon-green)',
               color: '#07080b',
-              fontWeight: 700,
+              fontWeight: 800,
               fontSize: '12px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              flexShrink: 0
             }}
           >
             跳过
@@ -130,16 +140,17 @@ export const RestTimerBar: React.FC = () => {
 };
 
 const actionBtnStyle: React.CSSProperties = {
-  height: '32px',
-  padding: '0 8px',
-  borderRadius: '8px',
+  height: '30px',
+  padding: '0 6px',
+  borderRadius: '7px',
   backgroundColor: 'var(--bg-surface-hover)',
   border: '1px solid var(--border-light)',
   color: 'var(--text-main)',
-  fontSize: '12px',
-  fontWeight: 600,
+  fontSize: '11px',
+  fontWeight: 700,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  cursor: 'pointer'
+  cursor: 'pointer',
+  flexShrink: 0
 };
