@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Dumbbell, Activity, Calendar, History, BarChart2, 
-  SlidersHorizontal, Volume2, VolumeX, Vibrate, Scale, Database
+  SlidersHorizontal, Volume2, VolumeX, Vibrate, Scale, Database, BookOpen
 } from 'lucide-react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { formatDuration } from '../../services/calculations';
@@ -51,66 +51,67 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      {/* 桌面端/通用顶部导航 */}
+      {/* 桌面端 / 通用顶部导航栏 */}
       <header style={{
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        height: '64px',
-        backgroundColor: 'rgba(12, 14, 20, 0.9)',
+        height: '60px',
+        backgroundColor: 'rgba(12, 14, 20, 0.92)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid var(--border-subtle)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '0 20px',
+        padding: '0 16px',
       }}>
         <div style={{
           width: '100%',
-          maxWidth: '1280px',
+          maxWidth: '1360px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: '12px'
         }}>
           {/* Logo 区域 */}
           <div 
             onClick={() => onSelectTab('dashboard')} 
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', flexShrink: 0 }}
           >
             <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '9px',
               backgroundColor: 'var(--neon-green)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#07080b',
-              boxShadow: '0 0 20px var(--neon-green-glow)'
+              boxShadow: '0 0 16px var(--neon-green-glow)'
             }}>
-              <Dumbbell size={20} strokeWidth={2.8} />
+              <Dumbbell size={18} strokeWidth={2.8} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-              <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-main)' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+              <span style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-main)' }}>
                 IRON<span style={{ color: 'var(--neon-green)' }}>PULSE</span>
               </span>
-              <span style={{
-                fontSize: '10px',
+              <span className="navbar-badge-workstation" style={{
+                fontSize: '9px',
                 fontWeight: 800,
                 letterSpacing: '0.6px',
                 color: 'var(--neon-green)',
                 backgroundColor: 'var(--neon-green-dim)',
-                padding: '1px 6px',
+                padding: '1px 5px',
                 borderRadius: '4px',
                 border: '1px solid rgba(34, 197, 94, 0.25)'
               }}>
-                WORKSTATION
+                PRO
               </span>
             </div>
           </div>
 
-          {/* 桌面端导航中心区 */}
-          <nav style={{ display: 'none', gap: '6px' }} className="desktop-nav">
+          {/* 桌面端导航中心区 (>= 1024px 显示，自适应留白) */}
+          <nav className="desktop-nav" style={{ display: 'none', gap: '4px', alignItems: 'center' }}>
             <button 
               onClick={() => onSelectTab('dashboard')}
               style={navBtnStyle(currentTab === 'dashboard')}
@@ -121,14 +122,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => onSelectTab('routines')}
               style={navBtnStyle(currentTab === 'routines')}
             >
-              <span>分化计划</span>
+              <span>计划</span>
             </button>
             <button 
               onClick={() => onSelectTab('analytics')}
               style={navBtnStyle(currentTab === 'analytics')}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <BarChart2 size={15} color={currentTab === 'analytics' ? 'var(--neon-green)' : 'currentColor'} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <BarChart2 size={14} color={currentTab === 'analytics' ? 'var(--neon-green)' : 'currentColor'} />
                 <span>数据深度</span>
               </div>
             </button>
@@ -136,8 +137,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => onSelectTab('body')}
               style={navBtnStyle(currentTab === 'body')}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Scale size={15} color={currentTab === 'body' ? 'var(--neon-green)' : 'currentColor'} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Scale size={14} color={currentTab === 'body' ? 'var(--neon-green)' : 'currentColor'} />
                 <span>体态追踪</span>
               </div>
             </button>
@@ -156,13 +157,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* 右侧工具栏与打卡状态 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             {/* 全局音效开关 */}
             <button
               onClick={handleToggleSound}
               style={{
-                width: '34px',
-                height: '34px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 backgroundColor: soundEnabled ? 'rgba(34, 197, 94, 0.1)' : 'var(--bg-surface-hover)',
                 border: soundEnabled ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid var(--border-subtle)',
@@ -175,15 +176,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
               title={soundEnabled ? '音效已开启 (点击静音)' : '音效已静音 (点击开启)'}
             >
-              {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+              {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
             </button>
 
             {/* 全局马达震动开关 */}
             <button
               onClick={handleToggleVibration}
               style={{
-                width: '34px',
-                height: '34px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 backgroundColor: vibrationEnabled ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-surface-hover)',
                 border: vibrationEnabled ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid var(--border-subtle)',
@@ -196,7 +197,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}
               title={vibrationEnabled ? '触感马达已开启' : '触感马达已关闭'}
             >
-              <Vibrate size={16} />
+              <Vibrate size={15} />
             </button>
 
             {/* 数据管理/备份恢复中心入口 */}
@@ -204,8 +205,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenDataManagement}
                 style={{
-                  padding: '7px 10px',
-                  borderRadius: '9px',
+                  height: '32px',
+                  padding: '0 9px',
+                  borderRadius: '8px',
                   backgroundColor: 'var(--bg-surface)',
                   border: '1px solid var(--border-subtle)',
                   color: 'var(--text-secondary)',
@@ -219,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 title="数据完全自主权与迁移中心 (导出/导入备份)"
               >
                 <Database size={15} color="var(--neon-green)" />
-                <span className="desktop-tool-btn" style={{ display: 'none' }}>数据备份</span>
+                <span className="desktop-text-label" style={{ display: 'none' }}>数据备份</span>
               </button>
             )}
 
@@ -228,23 +230,24 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenPlateCalc}
                 style={{
-                  display: 'none',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 12px',
-                  borderRadius: '9px',
+                  height: '32px',
+                  padding: '0 9px',
+                  borderRadius: '8px',
                   backgroundColor: 'var(--bg-surface)',
                   border: '1px solid var(--border-subtle)',
                   color: 'var(--text-secondary)',
                   fontSize: '12px',
                   fontWeight: 600,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  display: 'none',
+                  alignItems: 'center',
+                  gap: '5px'
                 }}
-                className="desktop-tool-btn"
+                className="desktop-plate-btn"
                 title="打开杠铃片配重计算器"
               >
                 <SlidersHorizontal size={14} color="var(--neon-green)" />
-                <span>杠铃配重</span>
+                <span className="desktop-text-label" style={{ display: 'none' }}>配重</span>
               </button>
             )}
 
@@ -255,25 +258,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  padding: '7px 14px',
+                  gap: '6px',
+                  padding: '5px 12px',
                   borderRadius: 'var(--radius-full)',
                   background: 'rgba(34, 197, 94, 0.14)',
                   border: '1px solid var(--neon-green)',
                   color: 'var(--neon-green)',
                   fontWeight: 700,
-                  fontSize: '13px',
+                  fontSize: '12px',
                   cursor: 'pointer',
                   animation: 'pulseGlow 2s infinite'
                 }}
               >
                 <span style={{
-                  width: '8px',
-                  height: '8px',
+                  width: '7px',
+                  height: '7px',
                   borderRadius: '50%',
                   backgroundColor: 'var(--neon-green)'
                 }} />
-                <span className="font-mono">进行中 {formatDuration(elapsedSeconds)}</span>
+                <span className="font-mono">
+                  <span className="workout-active-text-full">打卡中 </span>
+                  {formatDuration(elapsedSeconds)}
+                </span>
               </button>
             ) : (
               <button
@@ -281,18 +287,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 14px',
-                  borderRadius: '10px',
+                  gap: '5px',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
                   background: 'var(--neon-green)',
                   color: '#07080b',
                   fontWeight: 800,
-                  fontSize: '13px',
+                  fontSize: '12px',
                   cursor: 'pointer',
                   boxShadow: '0 0 12px var(--neon-green-glow)'
                 }}
               >
-                <Dumbbell size={16} strokeWidth={2.8} />
+                <Dumbbell size={14} strokeWidth={2.8} />
                 <span>开始训练</span>
               </button>
             )}
@@ -300,38 +306,41 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </header>
 
-      {/* 移动端底部触控底栏 */}
+      {/* 移动端 / 平板触控底栏 (< 1024px 显示，均分 6 个模块，完美杜绝拥挤) */}
       <div style={{
         position: 'fixed',
         bottom: 0,
         left: 0,
         right: 0,
-        height: '64px',
-        backgroundColor: 'rgba(12, 14, 20, 0.95)',
-        backdropFilter: 'blur(20px)',
+        height: '60px',
+        backgroundColor: 'rgba(12, 14, 20, 0.96)',
+        backdropFilter: 'blur(24px)',
         borderTop: '1px solid var(--border-subtle)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
         zIndex: 50,
-        paddingBottom: 'env(safe-area-inset-bottom, 4px)'
+        paddingBottom: 'env(safe-area-inset-bottom, 2px)'
       }} className="mobile-bottom-nav">
+        {/* 1. 总览 */}
         <button 
           onClick={() => onSelectTab('dashboard')}
           style={mobileTabStyle(currentTab === 'dashboard')}
         >
-          <Activity size={20} />
+          <Activity size={18} />
           <span>总览</span>
         </button>
 
+        {/* 2. 计划 */}
         <button 
           onClick={() => onSelectTab('routines')}
           style={mobileTabStyle(currentTab === 'routines')}
         >
-          <Calendar size={20} />
+          <Calendar size={18} />
           <span>计划</span>
         </button>
 
+        {/* 3. 中枢：打卡中或数据深度 */}
         {isWorkoutActive ? (
           <button 
             onClick={() => onSelectTab('active')}
@@ -341,8 +350,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
           >
             <div style={{
-              width: '38px',
-              height: '38px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
               background: 'var(--neon-green)',
               color: '#07080b',
@@ -351,42 +360,65 @@ export const Navbar: React.FC<NavbarProps> = ({
               justifyContent: 'center',
               boxShadow: '0 0 12px var(--neon-green-glow)'
             }}>
-              <Dumbbell size={20} strokeWidth={2.5} />
+              <Dumbbell size={17} strokeWidth={2.6} />
             </div>
-            <span style={{ fontSize: '10px', marginTop: '2px', fontWeight: 800 }}>打卡中</span>
+            <span style={{ fontSize: '9px', marginTop: '1px', fontWeight: 800 }}>打卡</span>
           </button>
         ) : (
           <button 
             onClick={() => onSelectTab('analytics')}
             style={mobileTabStyle(currentTab === 'analytics')}
           >
-            <BarChart2 size={20} />
+            <BarChart2 size={18} />
             <span>深度</span>
           </button>
         )}
 
+        {/* 4. 体态 */}
         <button 
           onClick={() => onSelectTab('body')}
           style={mobileTabStyle(currentTab === 'body')}
         >
-          <Scale size={20} />
+          <Scale size={18} />
           <span>体态</span>
         </button>
 
+        {/* 5. 动作库 */}
         <button 
           onClick={() => onSelectTab('exercises')}
           style={mobileTabStyle(currentTab === 'exercises')}
         >
-          <Dumbbell size={20} />
+          <BookOpen size={18} />
           <span>动作库</span>
+        </button>
+
+        {/* 6. 历史复盘 */}
+        <button 
+          onClick={() => onSelectTab('workouts')}
+          style={mobileTabStyle(currentTab === 'workouts')}
+        >
+          <History size={18} />
+          <span>历史</span>
         </button>
       </div>
 
       <style>{`
-        @media (min-width: 768px) {
+        /* 桌面工作台断点：>= 1024px */
+        @media (min-width: 1024px) {
           .desktop-nav { display: flex !important; }
-          .desktop-tool-btn { display: flex !important; }
+          .desktop-plate-btn { display: flex !important; }
           .mobile-bottom-nav { display: none !important; }
+        }
+
+        /* 宽屏断点：>= 1240px 展开文字标签 */
+        @media (min-width: 1240px) {
+          .desktop-text-label { display: inline !important; }
+        }
+
+        /* 移动端窄屏优化 */
+        @media (max-width: 480px) {
+          .navbar-badge-workstation { display: none !important; }
+          .workout-active-text-full { display: none !important; }
         }
       `}</style>
     </>
@@ -394,14 +426,15 @@ export const Navbar: React.FC<NavbarProps> = ({
 };
 
 const navBtnStyle = (active: boolean): React.CSSProperties => ({
-  padding: '7px 16px',
-  borderRadius: '10px',
+  padding: '6px 12px',
+  borderRadius: '8px',
   fontSize: '13px',
   fontWeight: active ? 700 : 500,
   color: active ? 'var(--text-main)' : 'var(--text-secondary)',
   backgroundColor: active ? 'var(--bg-surface-active)' : 'transparent',
   border: active ? '1px solid var(--border-medium)' : '1px solid transparent',
   cursor: 'pointer',
+  transition: 'all 0.15s ease'
 });
 
 const mobileTabStyle = (active: boolean): React.CSSProperties => ({
@@ -409,13 +442,14 @@ const mobileTabStyle = (active: boolean): React.CSSProperties => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: '3px',
-  fontSize: '11px',
+  gap: '2px',
+  fontSize: '10px',
   fontWeight: active ? 700 : 500,
   color: active ? 'var(--neon-green)' : 'var(--text-dim)',
   flex: 1,
   minWidth: 0,
-  padding: '0 2px',
+  padding: '2px 0',
   height: '100%',
-  cursor: 'pointer'
+  cursor: 'pointer',
+  transition: 'color 0.15s ease'
 });

@@ -114,7 +114,7 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
       {/* 顶部训练看板条 */}
       <div style={{
         position: 'sticky',
-        top: '64px',
+        top: '60px',
         zIndex: 30,
         backgroundColor: 'var(--bg-glass)',
         backdropFilter: 'blur(20px)',

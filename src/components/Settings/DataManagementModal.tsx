@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { 
-  X, Download, Upload, FileSpreadsheet, AlertTriangle, 
-  Database, RefreshCw, Check, CheckCircle2, ShieldAlert
+  Database, Download, Upload, Trash2, CheckCircle2, 
+  AlertTriangle, RefreshCw, X, FileSpreadsheet, ShieldAlert, Check
 } from 'lucide-react';
 import { 
   exportFullBackupJSON, 
   exportWorkoutsCSV, 
   importFullBackupJSON, 
-  resetDatabaseToFactory, 
-  ImportResult 
+  resetDatabaseToFactory,
+  ImportResult
 } from '../../services/dataTransfer';
 import { feedback } from '../../services/feedback';
 
@@ -21,31 +21,41 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
   onClose,
   onDataChanged
 }) => {
-  const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge');
-  const [importStatus, setImportStatus] = useState<ImportResult | null>(null);
+  const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isImporting, setIsImporting] = useState<boolean>(false);
-  const [selectedFileName, setSelectedFileName] = useState<string>('');
-  const [fileContent, setFileContent] = useState<string>('');
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+  const [fileContent, setFileContent] = useState<string | null>(null);
+  const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge');
+  const [importStatus, setImportStatus] = useState<{
+    success: boolean;
+    message: string;
+    counts?: any;
+  } | null>(null);
 
-  // 出厂重置安全确认输入
   const [resetConfirmText, setResetConfirmText] = useState<string>('');
   const [isResetting, setIsResetting] = useState<boolean>(false);
 
   const handleExportJSON = async () => {
     try {
+      setIsExporting(true);
       await exportFullBackupJSON();
       feedback.playCheckSound();
-    } catch (e) {
-      alert('导出 JSON 失败，请重试');
+    } catch (err: any) {
+      alert(`导出 JSON 失败: ${err.message}`);
+    } finally {
+      setIsExporting(false);
     }
   };
 
   const handleExportCSV = async () => {
     try {
+      setIsExporting(true);
       await exportWorkoutsCSV();
       feedback.playCheckSound();
-    } catch (e) {
-      alert('导出 CSV 失败，请重试');
+    } catch (err: any) {
+      alert(`导出 CSV 失败: ${err.message}`);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -56,35 +66,38 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
     setSelectedFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target?.result as string;
-      setFileContent(text);
+      setFileContent(event.target?.result as string);
       setImportStatus(null);
     };
     reader.readAsText(file);
   };
 
   const handleConfirmImport = async () => {
-    if (!fileContent) {
-      alert('请先选择有效的 JSON 备份文件');
-      return;
-    }
+    if (!fileContent) return;
 
-    if (importMode === 'replace') {
-      if (!window.confirm('警告：覆盖导入将完全清空当前的本地数据，以备份文件取代。确定继续吗？')) {
-        return;
-      }
-    }
-
-    setIsImporting(true);
     try {
-      const res = await importFullBackupJSON(fileContent, importMode);
-      setImportStatus(res);
+      setIsImporting(true);
+      const res: ImportResult = await importFullBackupJSON(fileContent, importMode);
+
       if (res.success) {
         feedback.playCheckSound();
+        setImportStatus({
+          success: true,
+          message: res.message,
+          counts: res.counts
+        });
         if (onDataChanged) onDataChanged();
+      } else {
+        setImportStatus({
+          success: false,
+          message: res.message
+        });
       }
-    } catch (e: any) {
-      alert(`导入异常: ${e.message}`);
+    } catch (err: any) {
+      setImportStatus({
+        success: false,
+        message: `导入失败: ${err.message}`
+      });
     } finally {
       setIsImporting(false);
     }
@@ -92,23 +105,23 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
 
   const handleFactoryReset = async () => {
     if (resetConfirmText.trim().toUpperCase() !== 'RESET') {
-      alert('请输入 RESET 以确认执行出厂重置');
+      alert('请输入 RESET 以确认出厂重置！');
       return;
     }
 
-    if (!window.confirm('最终确认：将永久清空所有自录数据并恢复出厂预置动作库，该操作不可逆！确定执行吗？')) {
+    if (!window.confirm('警告：此操作不可逆！所有训练、PR、体态记录将全部抹除并恢复出厂预置模板，确定吗？')) {
       return;
     }
 
-    setIsResetting(true);
     try {
+      setIsResetting(true);
       await resetDatabaseToFactory();
       feedback.playCheckSound();
-      alert('已成功恢复出厂设置！');
+      alert('已成功重置为出厂预置状态！');
       if (onDataChanged) onDataChanged();
       onClose();
-    } catch (e) {
-      alert('重置失败，请重试');
+    } catch (err: any) {
+      alert(`重置失败: ${err.message}`);
     } finally {
       setIsResetting(false);
     }
@@ -129,7 +142,7 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
       <div style={{
         width: '100%',
         maxWidth: '560px',
-        maxHeight: '92vh',
+        maxHeight: '90vh',
         overflowY: 'auto',
         backgroundColor: 'var(--bg-surface)',
         borderRadius: 'var(--radius-xl)',
@@ -161,28 +174,30 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
               color: 'var(--text-dim)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              cursor: 'pointer'
             }}
           >
             <X size={18} />
           </button>
         </div>
 
-        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* 1. 数据导出模块 */}
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px' }}>
               1. 离线数据导出 (Data Export)
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '12px', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '10px', lineHeight: 1.5 }}>
               你的所有训练、PR 和体态数据 100% 留存在当前设备本地。可自由导出标准文件，不被任何服务器或账号锁定。
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px' }}>
               <button
                 onClick={handleExportJSON}
+                disabled={isExporting}
                 style={{
-                  padding: '12px 14px',
+                  padding: '11px 12px',
                   borderRadius: '10px',
                   backgroundColor: 'var(--bg-surface-hover)',
                   border: '1px solid var(--border-subtle)',
@@ -193,17 +208,18 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  cursor: 'pointer'
+                  cursor: isExporting ? 'not-allowed' : 'pointer'
                 }}
               >
-                <Download size={16} color="var(--neon-green)" />
+                <Download size={15} color="var(--neon-green)" />
                 <span>全量 JSON 备份</span>
               </button>
 
               <button
                 onClick={handleExportCSV}
+                disabled={isExporting}
                 style={{
-                  padding: '12px 14px',
+                  padding: '11px 12px',
                   borderRadius: '10px',
                   backgroundColor: 'var(--bg-surface-hover)',
                   border: '1px solid var(--border-subtle)',
@@ -214,21 +230,21 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  cursor: 'pointer'
+                  cursor: isExporting ? 'not-allowed' : 'pointer'
                 }}
               >
-                <FileSpreadsheet size={16} color="var(--accent-blue)" />
+                <FileSpreadsheet size={15} color="var(--accent-blue)" />
                 <span>训练表格 CSV</span>
               </button>
             </div>
           </div>
 
-          {/* 2. 备份恢复与导入模块 */}
+          {/* 2. 备份恢复与导入模块 (自适应防拥挤) */}
           <div>
-            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px' }}>
               2. 备份恢复与导入 (Data Restore)
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '12px', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '10px', lineHeight: 1.5 }}>
               支持上传之前导出的 <code>.json</code> 备份文件。换手机或跨浏览器换设备时一键无损同步。
             </p>
 
@@ -236,10 +252,10 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
             <div style={{
               border: '1px dashed var(--border-medium)',
               borderRadius: 'var(--radius-md)',
-              padding: '16px',
+              padding: '14px',
               textAlign: 'center',
               backgroundColor: 'var(--bg-dark)',
-              marginBottom: '12px'
+              marginBottom: '10px'
             }}>
               <input
                 type="file"
@@ -275,25 +291,54 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
               )}
             </div>
 
-            {/* 导入模式单选 */}
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+            {/* 导入模式自适应选择 (纵向卡片，移动端极佳防拥挤体验) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                padding: '10px 12px',
+                borderRadius: '8px',
+                backgroundColor: importMode === 'merge' ? 'rgba(34, 197, 94, 0.08)' : 'var(--bg-dark)',
+                border: importMode === 'merge' ? '1px solid var(--neon-green)' : '1px solid var(--border-subtle)',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}>
                 <input
                   type="radio"
                   name="importMode"
                   checked={importMode === 'merge'}
                   onChange={() => setImportMode('merge')}
+                  style={{ marginTop: '2px' }}
                 />
-                <span>合并导入 (推荐：保留现有记录)</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>合并导入 (推荐)</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>保留现有训练与体态，自动补充或更新新记录</div>
+                </div>
               </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+
+              <label style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '10px',
+                padding: '10px 12px',
+                borderRadius: '8px',
+                backgroundColor: importMode === 'replace' ? 'rgba(239, 68, 68, 0.08)' : 'var(--bg-dark)',
+                border: importMode === 'replace' ? '1px solid var(--danger-rose)' : '1px solid var(--border-subtle)',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}>
                 <input
                   type="radio"
                   name="importMode"
                   checked={importMode === 'replace'}
                   onChange={() => setImportMode('replace')}
+                  style={{ marginTop: '2px' }}
                 />
-                <span>全新覆盖 (清空现有库)</span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-main)' }}>全新覆盖</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '2px' }}>清空本地全部现有库，严格恢复为备份文件内容</div>
+                </div>
               </label>
             </div>
 
@@ -304,7 +349,7 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
                 disabled={isImporting}
                 style={{
                   width: '100%',
-                  padding: '12px',
+                  padding: '11px',
                   borderRadius: '10px',
                   backgroundColor: 'var(--neon-green)',
                   color: '#07080b',
@@ -326,8 +371,8 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
             {/* 导入结果横幅 */}
             {importStatus && (
               <div style={{
-                marginTop: '12px',
-                padding: '12px 14px',
+                marginTop: '10px',
+                padding: '10px 12px',
                 borderRadius: 'var(--radius-md)',
                 backgroundColor: importStatus.success ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                 border: importStatus.success ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
@@ -335,12 +380,12 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
                 color: importStatus.success ? 'var(--neon-green)' : 'var(--danger-rose)'
               }}>
                 <div style={{ fontWeight: 700, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {importStatus.success ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+                  {importStatus.success ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}
                   <span>{importStatus.message}</span>
                 </div>
-                {importStatus.success && (
-                  <div style={{ color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                    恢复动作: {importStatus.counts.exercises} · 计划: {importStatus.counts.routines} · 训练: {importStatus.counts.workouts} · 组记录: {importStatus.counts.workoutSets} · 体态: {importStatus.counts.bodyMeasurements}
+                {importStatus.success && importStatus.counts && (
+                  <div style={{ color: 'var(--text-secondary)', lineHeight: 1.45, fontSize: '11px' }}>
+                    动作: {importStatus.counts.exercises} · 计划: {importStatus.counts.routines} · 训练: {importStatus.counts.workouts} · 组: {importStatus.counts.workoutSets} · 体态: {importStatus.counts.bodyMeasurements}
                   </div>
                 )}
               </div>
@@ -352,24 +397,24 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
             borderRadius: 'var(--radius-md)',
             border: '1px solid rgba(239, 68, 68, 0.25)',
             backgroundColor: 'rgba(239, 68, 68, 0.04)',
-            padding: '16px'
+            padding: '14px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--danger-rose)', fontSize: '13px', fontWeight: 800, marginBottom: '6px' }}>
-              <ShieldAlert size={16} />
+              <ShieldAlert size={15} />
               <span>危险操作：出厂重置与数据清空</span>
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '12px', lineHeight: 1.5 }}>
-              此操作将永久清空所有打卡、PR 历史与体态数据，并重新初始化预置标准动作与经典分化模板。为防误触，请在下方输入 <b>RESET</b> 后执行。
+            <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '10px', lineHeight: 1.5 }}>
+              此操作将永久清空所有记录并重新初始化预置标准动作与经典模板。在下方输入 <b>RESET</b> 后执行。
             </p>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <input
                 type="text"
                 placeholder="输入 RESET 确认..."
                 value={resetConfirmText}
                 onChange={e => setResetConfirmText(e.target.value)}
                 style={{
-                  flex: 1,
+                  flex: '1 1 160px',
                   padding: '8px 12px',
                   fontSize: '13px',
                   border: '1px solid var(--border-subtle)'
@@ -388,7 +433,8 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
                   fontSize: '12px',
                   fontWeight: 800,
                   cursor: resetConfirmText.trim().toUpperCase() === 'RESET' ? 'pointer' : 'not-allowed',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
                 }}
               >
                 {isResetting ? '重置中...' : '确认出厂重置'}
