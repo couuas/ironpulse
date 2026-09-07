@@ -322,10 +322,9 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
     })));
 
     if (willBeCompleted) {
-      feedback.playCheckSound();
-
-      // 如果破纪录，燃放烟花动效
+      // 如果破纪录，播放专属金色华丽四音阶琶音并燃放粒子彩带；普通打卡则播放轻脆单音
       if (isPR) {
+        feedback.playPRCelebrationSound();
         try {
           confetti({
             particleCount: 60,
@@ -334,6 +333,8 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
             colors: ['#22c55e', '#eab308', '#3b82f6', '#f43f5e']
           });
         } catch (e) {}
+      } else {
+        feedback.playCheckSound();
       }
 
       // 自动启动组间休息倒计时

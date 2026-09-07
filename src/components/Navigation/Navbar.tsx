@@ -1,17 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Dumbbell, Activity, Calendar, History, BarChart2, 
+  SlidersHorizontal, Volume2, VolumeX, Vibrate
+} from 'lucide-react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { formatDuration } from '../../services/calculations';
-import { 
-  Flame, 
-  Dumbbell, 
-  Calendar, 
-  Activity, 
-  History, 
-  SlidersHorizontal,
-  BarChart2
-} from 'lucide-react';
+import { feedback } from '../../services/feedback';
 
-export type NavTab = 'dashboard' | 'active' | 'routines' | 'exercises' | 'workouts' | 'analytics';
+export type NavTab = 'dashboard' | 'routines' | 'active' | 'exercises' | 'workouts' | 'analytics';
 
 interface NavbarProps {
   currentTab: NavTab;
@@ -19,56 +15,79 @@ interface NavbarProps {
   onOpenPlateCalc?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ 
-  currentTab, 
-  onSelectTab,
-  onOpenPlateCalc 
-}) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenPlateCalc }) => {
   const { isWorkoutActive, elapsedSeconds } = useWorkout();
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(feedback.isSoundEnabled());
+  const [vibrationEnabled, setVibrationEnabled] = useState<boolean>(feedback.isVibrationEnabled());
+
+  useEffect(() => {
+    const unsubscribe = feedback.subscribe(() => {
+      setSoundEnabled(feedback.isSoundEnabled());
+      setVibrationEnabled(feedback.isVibrationEnabled());
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleToggleSound = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = feedback.toggleSound();
+    setSoundEnabled(next);
+    if (next) {
+      feedback.playCheckSound();
+    }
+  };
+
+  const handleToggleVibration = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = feedback.toggleVibration();
+    setVibrationEnabled(next);
+  };
 
   return (
     <>
+      {/* 桌面端/通用顶部导航 */}
       <header style={{
-        backgroundColor: 'rgba(12, 14, 20, 0.85)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid var(--border-subtle)',
         position: 'sticky',
         top: 0,
-        zIndex: 40,
+        zIndex: 50,
         height: '64px',
+        backgroundColor: 'rgba(12, 14, 20, 0.9)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid var(--border-subtle)',
         display: 'flex',
         alignItems: 'center',
-        padding: '0 20px'
+        justifyContent: 'center',
+        padding: '0 20px',
       }}>
         <div style={{
           width: '100%',
-          maxWidth: '1440px',
-          margin: '0 auto',
+          maxWidth: '1280px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
         }}>
-          {/* 品牌标识 Logo */}
+          {/* Logo 区域 */}
           <div 
+            onClick={() => onSelectTab('dashboard')} 
             style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-            onClick={() => onSelectTab('dashboard')}
           >
             <div style={{
-              width: '34px',
-              height: '34px',
-              borderRadius: '11px',
-              background: 'linear-gradient(135deg, #22c55e, #15803d)',
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              backgroundColor: 'var(--neon-green)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 0 16px var(--neon-green-glow)'
+              color: '#07080b',
+              boxShadow: '0 0 20px var(--neon-green-glow)'
             }}>
-              <Flame size={20} color="#07080b" strokeWidth={2.8} />
+              <Dumbbell size={20} strokeWidth={2.8} />
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-              <div style={{ fontWeight: 800, fontSize: '18px', letterSpacing: '-0.4px', color: 'var(--text-main)' }}>
-                IronPulse
-              </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '-0.5px', color: 'var(--text-main)' }}>
+                IRON<span style={{ color: 'var(--neon-green)' }}>PULSE</span>
+              </span>
               <span style={{
                 fontSize: '10px',
                 fontWeight: 800,
@@ -122,7 +141,49 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* 右侧工具栏与打卡状态 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* 全局音效开关 */}
+            <button
+              onClick={handleToggleSound}
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                backgroundColor: soundEnabled ? 'rgba(34, 197, 94, 0.1)' : 'var(--bg-surface-hover)',
+                border: soundEnabled ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid var(--border-subtle)',
+                color: soundEnabled ? 'var(--neon-green)' : 'var(--text-dim)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+              title={soundEnabled ? '音效已开启 (点击静音)' : '音效已静音 (点击开启)'}
+            >
+              {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+            </button>
+
+            {/* 全局马达震动开关 (桌面端隐藏/移动端优先) */}
+            <button
+              onClick={handleToggleVibration}
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                backgroundColor: vibrationEnabled ? 'rgba(59, 130, 246, 0.1)' : 'var(--bg-surface-hover)',
+                border: vibrationEnabled ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid var(--border-subtle)',
+                color: vibrationEnabled ? 'var(--accent-blue)' : 'var(--text-dim)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+              title={vibrationEnabled ? '触感马达已开启' : '触感马达已关闭'}
+            >
+              <Vibrate size={16} />
+            </button>
+
             {onOpenPlateCalc && (
               <button
                 onClick={onOpenPlateCalc}
@@ -154,7 +215,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  padding: '7px 16px',
+                  padding: '7px 14px',
                   borderRadius: 'var(--radius-full)',
                   background: 'rgba(34, 197, 94, 0.14)',
                   border: '1px solid var(--neon-green)',
@@ -180,7 +241,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '8px 16px',
+                  padding: '8px 14px',
                   borderRadius: '10px',
                   background: 'var(--neon-green)',
                   color: '#07080b',

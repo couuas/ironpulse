@@ -7,6 +7,7 @@ import { useWorkout } from '../../context/WorkoutContext';
 import { formatDuration, calculateBarbellPlates, calculateEpley1RM } from '../../services/calculations';
 import { SetType, Exercise, MUSCLE_GROUP_LABELS } from '../../types/workout';
 import { PlateCalculatorModal } from './PlateCalculatorModal';
+import { OverloadAdviceCard } from './OverloadAdviceCard';
 import { ExerciseTrendChart } from '../Analytics/ExerciseTrendChart';
 import { db } from '../../db/db';
 
@@ -300,6 +301,21 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                     </div>
                   </div>
 
+                  {/* 渐进超负荷智能辅助条 (紧凑型，主训练流中常驻，一键采纳) */}
+                  <div style={{ padding: '12px 16px 4px 16px' }}>
+                    <OverloadAdviceCard
+                      compact
+                      exercise={exercise}
+                      ghostSets={ghostSets}
+                      onApplyAdvice={(weightKg, reps) => {
+                        const targetSet = sets.find(s => !s.isCompleted) || sets[0];
+                        if (targetSet) {
+                          updateSet(targetSet.id, { weightKg, reps });
+                        }
+                      }}
+                    />
+                  </div>
+
                   {/* 组数列表表格 (支持横向安全滑动，保证小屏永远完整展示) */}
                   <div className="table-responsive-wrapper" style={{ padding: '10px 4px' }}>
                     <div style={{ minWidth: '330px' }}>
@@ -321,10 +337,10 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                         <div>完成</div>
                       </div>
 
-                      {/* 组数据行 */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {sets.map((set, setIdx) => {
-                          const ghost = ghostSets[setIdx];
+                      {/* 组数条目列表 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {sets.map((set) => {
+                          const ghost = ghostSets[set.setNumber - 1];
 
                           return (
                             <div
@@ -345,187 +361,185 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                                 transition: 'all 0.15s ease'
                               }}
                             >
-                            {/* 组类型与组号切换 */}
-                            <div 
-                              onClick={() => {
-                                const types: SetType[] = ['normal', 'warmup', 'drop', 'failure'];
-                                const next = types[(types.indexOf(set.setType) + 1) % types.length];
-                                updateSet(set.id, { setType: next });
-                              }}
-                              style={{
-                                textAlign: 'center',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center'
-                              }}
-                              title="点击切换组类型"
-                            >
-                              <span style={{
-                                fontWeight: 800,
-                                fontSize: '14px',
-                                color: set.setType === 'warmup' ? '#f59e0b' : (set.setType === 'drop' ? '#3b82f6' : (set.setType === 'failure' ? '#f43f5e' : 'var(--text-main)'))
-                              }} className="font-mono">
-                                {set.setNumber}
-                              </span>
-                              <span style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 600 }}>
-                                {set.setType === 'normal' ? '常规' : (set.setType === 'warmup' ? '热身' : (set.setType === 'drop' ? '递减' : '力竭'))}
-                              </span>
-                            </div>
-
-                            {/* Ghost 虚影提示 */}
-                            <div style={{
-                              textAlign: 'center',
-                              fontSize: '12px',
-                              color: 'var(--text-dim)',
-                              whiteSpace: 'nowrap'
-                            }} className="font-mono">
-                              {ghost ? `${ghost.weightKg}kg × ${ghost.reps}` : '首练'}
-                            </div>
-
-                            {/* 重量列及步进按钮 */}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                              <button
-                                onClick={() => updateSet(set.id, { weightKg: Math.max(0, Math.round((set.weightKg - 2.5) * 10) / 10) })}
-                                style={stepBtnStyle}
-                              >
-                                -
-                              </button>
-                              <input
-                                type="number"
-                                step="0.5"
-                                value={set.weightKg}
-                                onChange={e => updateSet(set.id, { weightKg: parseFloat(e.target.value) || 0 })}
-                                style={{
-                                  width: '50px',
-                                  textAlign: 'center',
-                                  padding: '5px 1px',
-                                  fontWeight: 800,
-                                  fontSize: '13px'
+                              {/* 组类型与组号切换 */}
+                              <div 
+                                onClick={() => {
+                                  const types: SetType[] = ['normal', 'warmup', 'drop', 'failure'];
+                                  const next = types[(types.indexOf(set.setType) + 1) % types.length];
+                                  updateSet(set.id, { setType: next });
                                 }}
-                                className="font-mono"
-                              />
-                              <button
-                                onClick={() => updateSet(set.id, { weightKg: Math.round((set.weightKg + 2.5) * 10) / 10 })}
-                                style={stepBtnStyle}
-                              >
-                                +
-                              </button>
-                            </div>
-
-                            {/* 次数列及步进按钮 */}
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                              <button
-                                onClick={() => updateSet(set.id, { reps: Math.max(0, set.reps - 1) })}
-                                style={stepBtnStyle}
-                              >
-                                -
-                              </button>
-                              <input
-                                type="number"
-                                value={set.reps}
-                                onChange={e => updateSet(set.id, { reps: parseInt(e.target.value) || 0 })}
                                 style={{
-                                  width: '40px',
                                   textAlign: 'center',
-                                  padding: '5px 1px',
-                                  fontWeight: 800,
-                                  fontSize: '13px'
-                                }}
-                                className="font-mono"
-                              />
-                              <button
-                                onClick={() => updateSet(set.id, { reps: set.reps + 1 })}
-                                style={stepBtnStyle}
-                              >
-                                +
-                              </button>
-                            </div>
-
-                            {/* 单手极速打卡按钮 */}
-                            <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
-                              <button
-                                onClick={() => toggleSetCompleted(set.id)}
-                                style={{
-                                  width: '44px',
-                                  height: '44px',
-                                  borderRadius: '12px',
-                                  backgroundColor: set.isCompleted ? 'var(--neon-green)' : 'var(--bg-surface-hover)',
-                                  color: set.isCompleted ? '#07080b' : 'var(--text-dim)',
-                                  border: set.isCompleted ? 'none' : '1px solid var(--border-medium)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
                                   cursor: 'pointer',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center'
                                 }}
+                                title="点击切换组类型"
                               >
-                                <Check size={24} strokeWidth={set.isCompleted ? 3.2 : 2} />
-                              </button>
-                              {set.isPR && (
-                                <div style={{
-                                  position: 'absolute',
-                                  top: '-6px',
-                                  right: '-6px',
-                                  fontSize: '10px'
-                                }}>
-                                  <span className="badge-gold">PR</span>
-                                </div>
-                              )}
+                                <span style={{
+                                  fontWeight: 800,
+                                  fontSize: '14px',
+                                  color: set.setType === 'warmup' ? '#f59e0b' : (set.setType === 'drop' ? '#3b82f6' : (set.setType === 'failure' ? '#f43f5e' : 'var(--text-main)'))
+                                }} className="font-mono">
+                                  {set.setNumber}
+                                </span>
+                                <span style={{ fontSize: '10px', color: 'var(--text-dim)', fontWeight: 600 }}>
+                                  {set.setType === 'normal' ? '常规' : (set.setType === 'warmup' ? '热身' : (set.setType === 'drop' ? '递减' : '力竭'))}
+                                </span>
+                              </div>
+
+                              {/* Ghost 虚影提示 */}
+                              <div style={{
+                                textAlign: 'center',
+                                fontSize: '12px',
+                                color: 'var(--text-dim)',
+                                whiteSpace: 'nowrap'
+                              }} className="font-mono">
+                                {ghost ? `${ghost.weightKg}kg × ${ghost.reps}` : '首练'}
+                              </div>
+
+                              {/* 重量列及步进按钮 */}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                                <button
+                                  onClick={() => updateSet(set.id, { weightKg: Math.max(0, Math.round((set.weightKg - 2.5) * 10) / 10) })}
+                                  style={stepBtnStyle}
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  step="0.5"
+                                  value={set.weightKg}
+                                  onChange={e => updateSet(set.id, { weightKg: parseFloat(e.target.value) || 0 })}
+                                  style={{
+                                    width: '50px',
+                                    textAlign: 'center',
+                                    padding: '5px 1px',
+                                    fontWeight: 800,
+                                    fontSize: '13px'
+                                  }}
+                                  className="font-mono"
+                                />
+                                <button
+                                  onClick={() => updateSet(set.id, { weightKg: Math.round((set.weightKg + 2.5) * 10) / 10 })}
+                                  style={stepBtnStyle}
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              {/* 次数列及步进按钮 */}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                                <button
+                                  onClick={() => updateSet(set.id, { reps: Math.max(0, set.reps - 1) })}
+                                  style={stepBtnStyle}
+                                >
+                                  -
+                                </button>
+                                <input
+                                  type="number"
+                                  value={set.reps}
+                                  onChange={e => updateSet(set.id, { reps: parseInt(e.target.value) || 0 })}
+                                  style={{
+                                    width: '40px',
+                                    textAlign: 'center',
+                                    padding: '5px 1px',
+                                    fontWeight: 800,
+                                    fontSize: '13px'
+                                  }}
+                                  className="font-mono"
+                                />
+                                <button
+                                  onClick={() => updateSet(set.id, { reps: set.reps + 1 })}
+                                  style={stepBtnStyle}
+                                >
+                                  +
+                                </button>
+                              </div>
+
+                              {/* 单手极速打卡按钮 */}
+                              <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+                                <button
+                                  onClick={() => toggleSetCompleted(set.id)}
+                                  style={{
+                                    width: '44px',
+                                    height: '44px',
+                                    borderRadius: '12px',
+                                    backgroundColor: set.isCompleted ? 'var(--neon-green)' : 'var(--bg-surface-hover)',
+                                    color: set.isCompleted ? '#07080b' : 'var(--text-dim)',
+                                    border: set.isCompleted ? 'none' : '1px solid var(--border-medium)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  <Check size={24} strokeWidth={set.isCompleted ? 3.2 : 2} />
+                                </button>
+                                {set.isPR && (
+                                  <div style={{
+                                    position: 'absolute',
+                                    top: '-6px',
+                                    right: '-6px',
+                                    fontSize: '10px'
+                                  }}>
+                                    <span className="badge-gold">PR</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                    </div>
+                  </div>
 
-                    {/* 底部：添加一组 与 删除末组 */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', padding: '0 4px', flexWrap: 'wrap', gap: '8px' }}>
+                  {/* 动作底栏操作：添加新组 */}
+                  <div style={{
+                    padding: '12px 20px',
+                    borderTop: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <button
+                      onClick={() => addSet(exercise.id)}
+                      style={{
+                        padding: '6px 14px',
+                        borderRadius: '8px',
+                        backgroundColor: 'var(--bg-surface-hover)',
+                        border: '1px solid var(--border-subtle)',
+                        color: 'var(--text-main)',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <Plus size={14} />
+                      <span>添加一组</span>
+                    </button>
+
+                    {sets.length > 1 && (
                       <button
-                        onClick={() => addSet(exercise.id)}
-                        style={{
-                          padding: '8px 16px',
-                          borderRadius: '8px',
-                          backgroundColor: 'var(--neon-green-dim)',
-                          color: 'var(--neon-green)',
-                          fontWeight: 700,
-                          fontSize: '13px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}
+                        onClick={() => deleteSet(sets[sets.length - 1].id)}
+                        style={{ fontSize: '12px', color: 'var(--text-dim)' }}
                       >
-                        <Plus size={16} strokeWidth={2.8} />
-                        <span>添加一组</span>
+                        删除末组
                       </button>
-
-                      {sets.length > 1 && (
-                        <button
-                          onClick={() => deleteSet(sets[sets.length - 1].id)}
-                          style={{
-                            padding: '6px 12px',
-                            color: 'var(--text-dim)',
-                            fontSize: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <Trash2 size={14} />
-                          <span>删除末组</span>
-                        </button>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
               );
             })
           )}
 
-          {/* 追加动作主按钮 */}
+          {/* 添加其他动作大按钮 */}
           <button
             onClick={handleOpenExercisePicker}
             style={{
-              width: '100%',
               padding: '16px',
               borderRadius: 'var(--radius-lg)',
               backgroundColor: 'var(--bg-surface)',
@@ -571,6 +585,18 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                   {currentInspectedGroup.exercise.nameEn || 'Strength Movement'}
                 </div>
               </div>
+
+              {/* 渐进超负荷推导智能建议卡片 (完整展开版) */}
+              <OverloadAdviceCard
+                exercise={currentInspectedGroup.exercise}
+                ghostSets={currentInspectedGroup.ghostSets}
+                onApplyAdvice={(weightKg, reps) => {
+                  const targetSet = currentInspectedGroup.sets.find(s => !s.isCompleted) || currentInspectedGroup.sets[0];
+                  if (targetSet) {
+                    updateSet(targetSet.id, { weightKg, reps });
+                  }
+                }}
+              />
 
               {/* 杠铃片实时可视化插片 (无需弹窗，大屏常驻展示！) */}
               {currentInspectedGroup.exercise.equipment === 'barbell' && (
@@ -649,31 +675,6 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                   </div>
                 </div>
               )}
-
-              {/* 超负荷推导智能建议卡片 */}
-              <div style={{
-                padding: '20px',
-                borderRadius: 'var(--radius-lg)',
-                backgroundColor: 'rgba(34, 197, 94, 0.05)',
-                border: '1px solid rgba(34, 197, 94, 0.25)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <Sparkles size={16} color="var(--neon-green)" />
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--neon-green)' }}>
-                    渐进超负荷建议
-                  </span>
-                </div>
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                  {currentInspectedGroup.ghostSets.length > 0 ? (
-                    <>
-                      上周基准：<span className="font-mono" style={{ color: 'var(--text-main)' }}>{currentInspectedGroup.ghostSets[0].weightKg}kg × {currentInspectedGroup.ghostSets[0].reps}次</span>。
-                      今日突破策略：保持该动作节奏，建议首组尝试进阶至 <b style={{ color: 'var(--neon-green)' }} className="font-mono">{currentInspectedGroup.ghostSets[0].weightKg + 2.5}kg</b>！
-                    </>
-                  ) : (
-                    '首次录入该动作，建议从保守重量开始，建立稳定动作模式与肌肉本体感觉。'
-                  )}
-                </p>
-              </div>
 
               {/* 动作 1RM 极限推算卡片 */}
               <div style={{
@@ -837,5 +838,6 @@ function getPlateHeight(weight: number): string {
   if (weight >= 10) return '60px';
   if (weight >= 5) return '50px';
   if (weight >= 2.5) return '42px';
-  return '36px';
+  if (weight >= 1.25) return '36px';
+  return '28px';
 }
