@@ -102,6 +102,7 @@ npm run build
 - [详细功能需求说明书 (functional_requirements_specification.md)](./docs/functional_requirements_specification.md)
 - [系统架构与软件设计文档 (software_design_document.md)](./docs/software_design_document.md)
 - [研发进度追踪与验收矩阵 (rd_tracking_plan.md)](./docs/rd_tracking_plan.md)
+- [Phase 1 研发实施与验收计划 (phase_1.md)](./plans/phase_1.md)
 
 ---
 
