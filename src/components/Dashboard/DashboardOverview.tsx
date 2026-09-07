@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Flame, Play, Dumbbell, Award, History, TrendingUp, SlidersHorizontal, ArrowRight } from 'lucide-react';
+import { Flame, Play, Dumbbell, Award, History, TrendingUp, SlidersHorizontal, ArrowRight, Zap, Target } from 'lucide-react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { db } from '../../db/db';
 import { Routine, Workout, PersonalRecord } from '../../types/workout';
@@ -26,7 +26,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         .where('status')
         .equals('completed')
         .reverse()
-        .limit(3)
+        .limit(4)
         .toArray();
       setRecentWorkouts(wks);
 
@@ -39,18 +39,18 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
   const totalAllTimeVolume = recentWorkouts.reduce((acc, w) => acc + w.totalVolumeKg, 0);
 
   return (
-    <div style={{ padding: '20px 16px 100px', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="desktop-workstation-container">
       {/* 正在进行中的训练醒目 Banner */}
       {isWorkoutActive && (
         <div 
           onClick={() => onNavigate('active')}
           style={{
-            marginBottom: '20px',
-            padding: '18px 20px',
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(21, 128, 61, 0.2))',
+            marginBottom: '24px',
+            padding: '20px 24px',
+            borderRadius: 'var(--radius-lg)',
+            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(21, 128, 61, 0.18))',
             border: '1px solid var(--neon-green)',
-            boxShadow: '0 0 20px var(--neon-green-glow)',
+            boxShadow: '0 0 24px var(--neon-green-glow)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -59,198 +59,307 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{
                 width: '10px',
                 height: '10px',
                 borderRadius: '50%',
                 backgroundColor: 'var(--neon-green)'
               }} />
-              <span style={{ fontWeight: 800, fontSize: '16px', color: 'var(--text-main)' }}>
+              <span style={{ fontWeight: 800, fontSize: '17px', color: 'var(--text-main)' }}>
                 {activeWorkout?.name || '训练进行中'}
               </span>
             </div>
-            <div style={{ fontSize: '13px', color: 'var(--neon-green)', marginTop: '4px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-              已持续: {formatDuration(elapsedSeconds)} · 点击立即回到打卡台
+            <div style={{ fontSize: '13px', color: 'var(--neon-green)', marginTop: '4px', fontWeight: 700 }} className="font-mono">
+              已持续: {formatDuration(elapsedSeconds)} · 点击此处无缝回到打卡台 →
             </div>
           </div>
           <div style={{
-            width: '36px',
-            height: '36px',
+            width: '40px',
+            height: '40px',
             borderRadius: '50%',
             backgroundColor: 'var(--neon-green)',
             color: '#07080b',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            boxShadow: '0 0 10px var(--neon-green-glow)'
           }}>
-            <ArrowRight size={20} strokeWidth={2.5} />
+            <ArrowRight size={22} strokeWidth={2.8} />
           </div>
         </div>
       )}
 
-      {/* 问候与主欢迎卡片 */}
+      {/* 顶部主工作台看板 (Hero Section) */}
       <div style={{
-        padding: '24px',
-        borderRadius: '20px',
+        padding: '32px',
+        borderRadius: 'var(--radius-xl)',
         backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-dim)',
+        border: '1px solid var(--border-subtle)',
         marginBottom: '24px',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
       }}>
+        {/* 背景高斯霓虹球 */}
         <div style={{
           position: 'absolute',
-          top: '-40px',
+          top: '-60px',
           right: '-40px',
-          width: '140px',
-          height: '140px',
+          width: '260px',
+          height: '260px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(34, 197, 94, 0.18) 0%, transparent 70%)',
           pointerEvents: 'none'
         }} />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
           <div style={{
-            padding: '4px 10px',
-            borderRadius: '9999px',
+            padding: '4px 12px',
+            borderRadius: 'var(--radius-full)',
             backgroundColor: 'var(--neon-green-dim)',
             color: 'var(--neon-green)',
             fontSize: '11px',
-            fontWeight: 700,
+            fontWeight: 800,
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '4px'
+            gap: '5px',
+            border: '1px solid rgba(34, 197, 94, 0.25)'
           }}>
-            <Flame size={13} />
-            <span>Local-First 离线优先就绪</span>
+            <Zap size={13} />
+            <span>STEALTH WORKSTATION READY</span>
           </div>
         </div>
 
-        <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '8px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.8px', marginBottom: '10px' }}>
           掌控每一组负荷，雕刻每一寸肌肉
         </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)', maxWidth: '520px', lineHeight: 1.6 }}>
-          100% 本地极速运转，无需等待接口加载。地下室断网照常打卡，让每一次卧推、深蹲与硬拉都有迹可循。
+        <p style={{ fontSize: '15px', color: 'var(--text-secondary)', maxWidth: '640px', lineHeight: 1.6 }}>
+          100% 本地优先（Local-First）极速运转，断网零等待。大屏幕做周期编排与复盘，健身房做秒级单手精准记录。
         </p>
 
-        {/* 快捷工具栏 */}
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
+        {/* 快捷操作区 */}
+        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => onNavigate('routines')}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '10px',
+              backgroundColor: 'var(--neon-green)',
+              color: '#07080b',
+              fontSize: '14px',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 0 16px var(--neon-green-glow)'
+            }}
+          >
+            <Play size={16} fill="#07080b" strokeWidth={2} />
+            <span>开启今天训练</span>
+          </button>
+
           <button
             onClick={() => setIsPlateModalOpen(true)}
             style={{
-              padding: '8px 14px',
-              borderRadius: '8px',
+              padding: '10px 18px',
+              borderRadius: '10px',
               backgroundColor: 'var(--bg-surface-hover)',
-              border: '1px solid var(--border-light)',
+              border: '1px solid var(--border-medium)',
               color: 'var(--text-main)',
-              fontSize: '12px',
-              fontWeight: 600,
+              fontSize: '14px',
+              fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer'
+              gap: '8px'
             }}
           >
-            <SlidersHorizontal size={15} color="var(--neon-green)" />
+            <SlidersHorizontal size={16} color="var(--neon-green)" />
             <span>杠铃片配重计算</span>
           </button>
         </div>
       </div>
 
-      {/* 核心数据仪表卡片 */}
+      {/* 4 维指标栅格 (Desktop 4-Col / Mobile 2-Col) */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr 1fr',
-        gap: '12px',
-        marginBottom: '28px'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '16px',
+        marginBottom: '32px'
       }}>
         <div style={statCardStyle}>
-          <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>累计打卡</div>
-          <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-main)', marginTop: '4px' }}>
-            {recentWorkouts.length} <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>次</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+            <span>累计打卡场次</span>
+            <History size={16} />
+          </div>
+          <div style={{ fontSize: '30px', fontWeight: 800, color: 'var(--text-main)', marginTop: '8px' }} className="font-mono">
+            {recentWorkouts.length} <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>次</span>
           </div>
         </div>
+
         <div style={statCardStyle}>
-          <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>记录PR突破</div>
-          <div style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--gold-pr)', marginTop: '4px' }}>
-            {prCount} <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>项</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+            <span>打破历史 PR</span>
+            <Award size={16} color="var(--gold-pr)" />
+          </div>
+          <div style={{ fontSize: '30px', fontWeight: 800, color: 'var(--gold-pr)', marginTop: '8px' }} className="font-mono">
+            {prCount} <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>项</span>
           </div>
         </div>
+
         <div style={statCardStyle}>
-          <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>近期总容量</div>
-          <div style={{ fontSize: '22px', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--neon-green)', marginTop: '4px' }}>
-            {totalAllTimeVolume} <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>kg</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+            <span>近期累计容量</span>
+            <TrendingUp size={16} color="var(--neon-green)" />
+          </div>
+          <div style={{ fontSize: '30px', fontWeight: 800, color: 'var(--neon-green)', marginTop: '8px' }} className="font-mono">
+            {totalAllTimeVolume} <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>kg</span>
+          </div>
+        </div>
+
+        <div style={statCardStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+            <span>存储引擎状态</span>
+            <Target size={16} color="var(--tech-blue)" />
+          </div>
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--tech-blue)', marginTop: '12px' }}>
+            IndexedDB 离线
           </div>
         </div>
       </div>
 
-      {/* 快捷启动训练分化 (PPL) */}
-      <div style={{ marginBottom: '28px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
-            快速开练 (经典 PPL 分化)
-          </h2>
-          <button
-            onClick={() => onNavigate('routines')}
-            style={{ fontSize: '12px', color: 'var(--neon-green)', fontWeight: 600 }}
-          >
-            查看全部计划 →
-          </button>
+      {/* 双列布局：左侧快速开练 PPL，右侧近期训练回放 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
+        {/* 左侧：分化计划推荐 */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
+              快速开练 · 经典分化计划
+            </h2>
+            <button
+              onClick={() => onNavigate('routines')}
+              style={{ fontSize: '13px', color: 'var(--neon-green)', fontWeight: 700 }}
+            >
+              全部计划 →
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {routines.map(routine => (
+              <div
+                key={routine.id}
+                onClick={async () => {
+                  await startWorkout(routine);
+                  onNavigate('active');
+                }}
+                style={{
+                  padding: '18px 20px',
+                  borderRadius: 'var(--radius-lg)',
+                  backgroundColor: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--neon-green)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-subtle)'}
+              >
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--text-main)' }}>
+                    {routine.name}
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--text-dim)', marginTop: '4px' }}>
+                    {routine.description}
+                  </div>
+                </div>
+
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--neon-green-dim)',
+                  color: 'var(--neon-green)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Play size={18} fill="var(--neon-green)" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {routines.map(routine => (
-            <div
-              key={routine.id}
-              onClick={async () => {
-                await startWorkout(routine);
-                onNavigate('active');
-              }}
-              style={{
-                padding: '16px 18px',
-                borderRadius: '14px',
-                backgroundColor: 'var(--bg-surface)',
-                border: '1px solid var(--border-dim)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--neon-green)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border-dim)'}
+        {/* 右侧：近期复盘列表 */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
+              近期训练历史
+            </h2>
+            <button
+              onClick={() => onNavigate('workouts')}
+              style={{ fontSize: '13px', color: 'var(--neon-green)', fontWeight: 700 }}
             >
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-main)' }}>
-                  {routine.name}
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '2px' }}>
-                  {routine.description}
-                </div>
-              </div>
+              完整日志 →
+            </button>
+          </div>
 
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {recentWorkouts.length === 0 ? (
               <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                color: 'var(--neon-green)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                padding: '36px 20px',
+                textAlign: 'center',
+                backgroundColor: 'var(--bg-surface)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px dashed var(--border-subtle)',
+                color: 'var(--text-dim)'
               }}>
-                <Play size={16} fill="var(--neon-green)" />
+                暂无历史训练记录，完成首次训练后在此呈现复盘看板。
               </div>
-            </div>
-          ))}
+            ) : (
+              recentWorkouts.map(wk => (
+                <div
+                  key={wk.id}
+                  style={{
+                    padding: '16px 20px',
+                    borderRadius: 'var(--radius-lg)',
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-main)' }}>
+                      {wk.name}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '3px' }}>
+                      {new Date(wk.startTime).toLocaleDateString()} · 耗时 {formatDuration(wk.durationSeconds)}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--neon-green)' }} className="font-mono">
+                      {wk.totalVolumeKg} kg
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>
+                      {wk.setsCount} 组打卡
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
 
       {/* 杠铃片计算器 Modal */}
       {isPlateModalOpen && (
         <PlateCalculatorModal
-          initialWeight={70}
+          initialWeight={80}
           onClose={() => setIsPlateModalOpen(false)}
         />
       )}
@@ -259,9 +368,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
 };
 
 const statCardStyle: React.CSSProperties = {
-  padding: '16px 14px',
-  borderRadius: '14px',
+  padding: '20px 22px',
+  borderRadius: 'var(--radius-lg)',
   backgroundColor: 'var(--bg-surface)',
-  border: '1px solid var(--border-dim)',
-  textAlign: 'center'
+  border: '1px solid var(--border-subtle)',
+  boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
 };

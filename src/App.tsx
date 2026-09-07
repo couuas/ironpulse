@@ -8,9 +8,11 @@ import { RoutineList } from './components/Routines/RoutineList';
 import { ExerciseLibrary } from './components/Exercises/ExerciseLibrary';
 import { WorkoutHistory } from './components/Workouts/WorkoutHistory';
 import { RestTimerBar } from './components/ActiveWorkout/RestTimerBar';
+import { PlateCalculatorModal } from './components/ActiveWorkout/PlateCalculatorModal';
 
 export function AppContent() {
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
+  const [isPlateModalOpen, setIsPlateModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // 首次启动注入预置动作与经典模板
@@ -18,8 +20,12 @@ export function AppContent() {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar currentTab={currentTab} onSelectTab={setCurrentTab} />
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-base)' }}>
+      <Navbar 
+        currentTab={currentTab} 
+        onSelectTab={setCurrentTab}
+        onOpenPlateCalc={() => setIsPlateModalOpen(true)}
+      />
 
       <main style={{ flex: 1 }}>
         {currentTab === 'dashboard' && (
@@ -41,6 +47,14 @@ export function AppContent() {
 
       {/* 全局挂载的组间休息倒计时条 (切换页面依然置顶悬浮) */}
       <RestTimerBar />
+
+      {/* 顶部工具栏直接唤起的杠铃片配重弹窗 */}
+      {isPlateModalOpen && (
+        <PlateCalculatorModal
+          initialWeight={70}
+          onClose={() => setIsPlateModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

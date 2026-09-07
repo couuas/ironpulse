@@ -1,37 +1,59 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700;800&display=swap');
 
 :root {
-  --bg-dark: #07080b;
-  --bg-surface: #101218;
-  --bg-surface-hover: #171a23;
-  --bg-surface-active: #1e222e;
-  --bg-glass: rgba(16, 18, 24, 0.85);
+  /* 基础底色与表面 Elevation */
+  --bg-base: #08090c;
+  --bg-canvas: #0d0f14;
+  --bg-surface: #13161f;
+  --bg-surface-hover: #1a1e29;
+  --bg-surface-active: #222736;
+  --bg-glass: rgba(19, 22, 31, 0.82);
 
-  --border-dim: rgba(255, 255, 255, 0.06);
+  /* 兼容既有属性 */
+  --bg-dark: #08090c;
+
+  /* 边框体系 */
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-dim: rgba(255, 255, 255, 0.07);
   --border-light: rgba(255, 255, 255, 0.12);
+  --border-medium: rgba(255, 255, 255, 0.14);
   --border-focus: rgba(34, 197, 94, 0.45);
 
+  /* 品牌信号色 */
   --neon-green: #22c55e;
-  --neon-green-glow: rgba(34, 197, 94, 0.22);
-  --neon-green-dim: rgba(34, 197, 94, 0.12);
+  --neon-green-glow: rgba(34, 197, 94, 0.25);
+  --neon-green-dim: rgba(34, 197, 94, 0.14);
 
-  --gold-pr: #eab308;
-  --gold-glow: rgba(234, 179, 8, 0.25);
+  --accent-green: #22c55e;
+  --accent-green-dim: rgba(34, 197, 94, 0.14);
+  --accent-green-glow: rgba(34, 197, 94, 0.28);
+
+  --gold-pr: #f59e0b;
+  --gold-glow: rgba(245, 158, 11, 0.28);
+  --accent-gold: #f59e0b;
+  --accent-gold-dim: rgba(245, 158, 11, 0.15);
 
   --tech-blue: #3b82f6;
+  --accent-blue: #3b82f6;
   --danger-rose: #f43f5e;
+  --accent-rose: #f43f5e;
 
+  /* 文字体系 */
   --text-main: #f8fafc;
+  --text-secondary: #94a3b8;
   --text-muted: #94a3b8;
   --text-dim: #64748b;
 
+  /* 字体栈 */
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
+  /* 圆角规范 */
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 18px;
-  --radius-xl: 24px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-full: 9999px;
 }
 
 * {
@@ -44,7 +66,7 @@
 html, body {
   width: 100%;
   min-height: 100%;
-  background-color: var(--bg-dark);
+  background-color: var(--bg-base);
   color: var(--text-main);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -53,7 +75,13 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 隐藏滚动条但保留滚动功能 */
+/* 数字等宽排版全局应用 */
+.font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 隐藏系统滚动条但保持平滑滚动 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -62,14 +90,14 @@ html, body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.22);
 }
 
-/* 按钮基础重置与交互 */
+/* 基础交互元素 */
 button {
   font-family: inherit;
   border: none;
@@ -80,7 +108,7 @@ button {
 }
 
 button:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 input, select, textarea {
@@ -90,47 +118,59 @@ input, select, textarea {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.15s ease;
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--neon-green);
-  box-shadow: 0 0 0 2px var(--neon-green-dim);
+  box-shadow: 0 0 0 3px var(--neon-green-dim);
 }
 
 /* 动效关键帧 */
 @keyframes badgePop {
-  0% { transform: scale(0.6); opacity: 0; }
-  60% { transform: scale(1.15); opacity: 1; }
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 12px var(--neon-green-glow); }
+  0%, 100% { box-shadow: 0 0 14px var(--neon-green-glow); }
   50% { box-shadow: 0 0 24px rgba(34, 197, 94, 0.45); }
 }
 
-@keyframes timerRing {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: 100; }
+@keyframes shimmerWave {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-/* 通用玻璃拟态容器 */
+/* 表面卡片类 */
+.stealth-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stealth-card:hover {
+  border-color: var(--border-medium);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
 .glass-panel {
   background: var(--bg-glass);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-dim);
+  border: 1px solid var(--border-subtle);
 }
 
-/* 主色调高亮标签 */
+/* 徽章与标签 */
 .badge-neon {
   background: var(--neon-green-dim);
   color: var(--neon-green);
   border: 1px solid rgba(34, 197, 94, 0.25);
-  font-weight: 600;
-  border-radius: 9999px;
-  padding: 2px 8px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  padding: 2px 9px;
   font-size: 11px;
   display: inline-flex;
   align-items: center;
@@ -138,15 +178,57 @@ input:focus, select:focus, textarea:focus {
 }
 
 .badge-gold {
-  background: rgba(234, 179, 8, 0.15);
+  background: rgba(245, 158, 11, 0.16);
   color: var(--gold-pr);
-  border: 1px solid rgba(234, 179, 8, 0.3);
-  font-weight: 700;
-  border-radius: 9999px;
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  font-weight: 800;
+  border-radius: var(--radius-full);
   padding: 2px 8px;
   font-size: 11px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   animation: badgePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* 桌面大屏工作台栅格系统 */
+.desktop-workstation-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px 100px;
+}
+
+@media (min-width: 1024px) {
+  .desktop-split-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 400px !important;
+    gap: 24px !important;
+    align-items: start !important;
+  }
+
+  .desktop-grid-2col {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  .desktop-grid-3col {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+
+  .desktop-grid-4col {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  .desktop-sticky-inspector {
+    position: sticky !important;
+    top: 84px !important;
+    max-height: calc(100vh - 104px) !important;
+    overflow-y: auto !important;
+  }
 }

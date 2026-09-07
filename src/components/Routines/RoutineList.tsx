@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Plus, Calendar, Dumbbell, Trash2, Clock, Check } from 'lucide-react';
+import { Play, Plus, Dumbbell, Trash2, Check, Sparkles } from 'lucide-react';
 import { Routine, Exercise } from '../../types/workout';
 import { db } from '../../db/db';
 import { useWorkout } from '../../context/WorkoutContext';
@@ -17,7 +17,7 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
   // 新建模板状态
   const [newRoutineName, setNewRoutineName] = useState('');
   const [newRoutineDesc, setNewRoutineDesc] = useState('');
-  const [newRoutineTags, setNewRoutineTags] = useState('自定义, 力量');
+  const [newRoutineTags, setNewRoutineTags] = useState('自定义, 增肌');
   const [allExercises, setAllExercises] = useState<Exercise[]>([]);
   const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([]);
 
@@ -58,8 +58,8 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
       items: selectedExerciseIds.map((exId, idx) => ({
         id: `item-${Date.now()}-${idx}`,
         exerciseId: exId,
-        targetSets: 3,
-        targetReps: '8-12',
+        targetSets: 4,
+        targetReps: '8-10',
         restSeconds: 90
       })),
       createdAt: Date.now(),
@@ -75,132 +75,152 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
   };
 
   const handleDeleteRoutine = async (id: string, name: string) => {
-    if (window.confirm(`确定要删除训练模板 “${name}” 吗？`)) {
+    if (window.confirm(`确定要删除训练计划 “${name}” 吗？`)) {
       await db.routines.delete(id);
       loadData();
     }
   };
 
   return (
-    <div style={{ padding: '20px 16px 100px', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="desktop-workstation-container">
       {/* 头部标题与新建按钮 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
             分化训练计划
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            选择模板即刻一键导入并开启训练打卡
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            管理周期化训练方案（PPL、上下肢、专注日）· 支持一键实例化直接开练
           </p>
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
           style={{
-            padding: '8px 14px',
+            padding: '10px 18px',
             borderRadius: '10px',
             backgroundColor: 'var(--neon-green)',
             color: '#07080b',
-            fontWeight: 700,
+            fontWeight: 800,
             fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            boxShadow: '0 0 12px var(--neon-green-glow)'
           }}
         >
-          <Plus size={16} strokeWidth={2.5} />
-          <span>新建计划</span>
+          <Plus size={16} strokeWidth={2.8} />
+          <span>新建分化计划</span>
         </button>
       </div>
 
-      {/* 模板列表卡片 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* 大屏响应式多列卡片网格 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+        gap: '20px'
+      }}>
         {routines.map(routine => (
           <div
             key={routine.id}
             style={{
               backgroundColor: 'var(--bg-surface)',
-              borderRadius: '16px',
-              border: '1px solid var(--border-dim)',
-              padding: '18px 20px',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border-subtle)',
+              padding: '22px 24px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '14px',
-              transition: 'border-color 0.2s'
+              justifyContent: 'space-between',
+              gap: '16px',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'var(--neon-green)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'var(--border-subtle)';
+              e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-              <div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>
+                  <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
                     {routine.name}
                   </h2>
                   {routine.tags.map(tag => (
-                    <span key={tag} className="badge-neon" style={{ fontSize: '10px' }}>
+                    <span key={tag} className="badge-neon">
                       {tag}
                     </span>
                   ))}
                 </div>
-                {routine.description && (
-                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                    {routine.description}
-                  </p>
-                )}
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteRoutine(routine.id, routine.name);
+                  }}
+                  style={{ color: 'var(--text-dim)', padding: '4px' }}
+                  title="删除计划"
+                >
+                  <Trash2 size={16} />
+                </button>
               </div>
 
-              <button
-                onClick={() => handleDeleteRoutine(routine.id, routine.name)}
-                style={{ color: 'var(--text-dim)', padding: '4px' }}
-                title="删除计划模板"
-              >
-                <Trash2 size={16} />
-              </button>
+              {routine.description && (
+                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '14px', lineHeight: 1.5 }}>
+                  {routine.description}
+                </p>
+              )}
+
+              {/* 动作序列药丸徽章 */}
+              <div style={{
+                backgroundColor: 'var(--bg-dark)',
+                borderRadius: 'var(--radius-md)',
+                padding: '14px',
+                border: '1px solid var(--border-subtle)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700, letterSpacing: '0.4px' }}>
+                  包含动作 ({routine.items.length} 个)
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {routine.items.map((item, idx) => {
+                    const ex = exercisesMap[item.exerciseId];
+                    return (
+                      <div
+                        key={item.id}
+                        style={{
+                          padding: '5px 10px',
+                          borderRadius: '6px',
+                          backgroundColor: 'var(--bg-surface-hover)',
+                          border: '1px solid var(--border-subtle)',
+                          fontSize: '12px',
+                          color: 'var(--text-main)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span style={{ color: 'var(--neon-green)', fontWeight: 800, fontSize: '11px' }} className="font-mono">
+                          {idx + 1}.
+                        </span>
+                        <span>{ex ? ex.name : '未知动作'}</span>
+                        <span style={{ fontSize: '11px', color: 'var(--text-dim)' }} className="font-mono">
+                          {item.targetSets}组
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
-            {/* 包含动作简览 */}
-            <div style={{
-              backgroundColor: 'var(--bg-dark)',
-              borderRadius: '12px',
-              padding: '12px 14px',
-              border: '1px solid var(--border-dim)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px'
-            }}>
-              <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 600 }}>
-                包含动作 ({routine.items.length} 个)
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {routine.items.map((item, idx) => {
-                  const ex = exercisesMap[item.exerciseId];
-                  return (
-                    <div
-                      key={item.id}
-                      style={{
-                        padding: '4px 10px',
-                        borderRadius: '6px',
-                        backgroundColor: 'var(--bg-surface-hover)',
-                        fontSize: '12px',
-                        color: 'var(--text-main)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
-                    >
-                      <span style={{ color: 'var(--neon-green)', fontWeight: 700, fontSize: '11px' }}>
-                        {idx + 1}.
-                      </span>
-                      <span>{ex ? ex.name : '未知动作'}</span>
-                      <span style={{ fontSize: '10px', color: 'var(--text-dim)' }}>
-                        ({item.targetSets}组)
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 开始训练行动按钮 */}
+            {/* 开练按钮 */}
             <div>
               <button
                 onClick={() => handleStartWorkoutFromRoutine(routine)}
@@ -216,11 +236,11 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
-                  boxShadow: '0 0 12px var(--neon-green-glow)',
+                  boxShadow: '0 0 14px var(--neon-green-glow)',
                   cursor: 'pointer'
                 }}
               >
-                <Play size={18} fill="#07080b" strokeWidth={2} />
+                <Play size={16} fill="#07080b" strokeWidth={2} />
                 <span>开始本次训练</span>
               </button>
             </div>
@@ -234,8 +254,8 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
           position: 'fixed',
           inset: 0,
           zIndex: 100,
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          backdropFilter: 'blur(8px)',
+          backgroundColor: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(12px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -245,24 +265,24 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
             onSubmit={handleCreateRoutine}
             style={{
               width: '100%',
-              maxWidth: '520px',
+              maxWidth: '560px',
               maxHeight: '85vh',
               backgroundColor: 'var(--bg-surface)',
-              borderRadius: '20px',
+              borderRadius: 'var(--radius-xl)',
               border: '1px solid var(--border-light)',
-              padding: '24px',
+              padding: '28px',
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
               gap: '16px'
             }}
           >
-            <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-main)' }}>
               新建分化训练计划
             </h3>
 
             <div>
-              <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'block', marginBottom: '5px' }}>
                 计划名称 (如: 手臂超级轰炸日)
               </label>
               <input
@@ -270,34 +290,34 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
                 placeholder="计划名称"
                 value={newRoutineName}
                 onChange={e => setNewRoutineName(e.target.value)}
-                style={{ width: '100%', padding: '10px 12px' }}
+                style={{ width: '100%', padding: '11px 14px' }}
                 required
               />
             </div>
 
             <div>
-              <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                计划描述与重点
+              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'block', marginBottom: '5px' }}>
+                计划描述与训练目标
               </label>
               <input
                 type="text"
-                placeholder="针对肱二头长头与肱三头长头的强化分化"
+                placeholder="针对二头长头与三头肌外侧头的强化训练"
                 value={newRoutineDesc}
                 onChange={e => setNewRoutineDesc(e.target.value)}
-                style={{ width: '100%', padding: '10px 12px' }}
+                style={{ width: '100%', padding: '11px 14px' }}
               />
             </div>
 
             <div>
-              <label style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+              <label style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
                 勾选包含的动作 (已选 {selectedExerciseIds.length} 个):
               </label>
               <div style={{
-                maxHeight: '200px',
+                maxHeight: '220px',
                 overflowY: 'auto',
-                border: '1px solid var(--border-dim)',
+                border: '1px solid var(--border-subtle)',
                 borderRadius: '10px',
-                padding: '8px',
+                padding: '10px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '6px'
@@ -313,7 +333,7 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
                         );
                       }}
                       style={{
-                        padding: '8px 10px',
+                        padding: '9px 12px',
                         borderRadius: '8px',
                         backgroundColor: isChecked ? 'rgba(34, 197, 94, 0.12)' : 'var(--bg-dark)',
                         border: isChecked ? '1px solid var(--neon-green)' : '1px solid transparent',
@@ -323,7 +343,7 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
                         cursor: 'pointer'
                       }}
                     >
-                      <span style={{ fontSize: '13px', color: isChecked ? 'var(--neon-green)' : 'var(--text-main)', fontWeight: isChecked ? 700 : 500 }}>
+                      <span style={{ fontSize: '14px', color: isChecked ? 'var(--neon-green)' : 'var(--text-main)', fontWeight: isChecked ? 700 : 500 }}>
                         {ex.name}
                       </span>
                       {isChecked && <Check size={16} color="var(--neon-green)" />}
@@ -333,7 +353,7 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(false)}
@@ -342,8 +362,8 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
                   padding: '12px',
                   borderRadius: '10px',
                   backgroundColor: 'var(--bg-surface-hover)',
-                  color: 'var(--text-main)',
-                  fontWeight: 600
+                  color: 'var(--text-secondary)',
+                  fontWeight: 700
                 }}
               >
                 取消
@@ -356,10 +376,10 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
                   borderRadius: '10px',
                   backgroundColor: 'var(--neon-green)',
                   color: '#07080b',
-                  fontWeight: 700
+                  fontWeight: 800
                 }}
               >
-                保存计划
+                保存此计划
               </button>
             </div>
           </form>

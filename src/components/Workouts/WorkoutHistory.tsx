@@ -44,30 +44,30 @@ export const WorkoutHistory: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '20px 16px 100px', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)' }}>
-          训练历史记录
+    <div className="desktop-workstation-container">
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
+          训练历史与复盘日志
         </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-          累计完成 {workouts.length} 次训练打卡，见证力量的每一次蜕变
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+          累计完成 {workouts.length} 次训练打卡 · 记录每一组负荷与极限突破
         </p>
       </div>
 
       {workouts.length === 0 ? (
         <div style={{
-          padding: '40px 20px',
+          padding: '60px 20px',
           textAlign: 'center',
           backgroundColor: 'var(--bg-surface)',
-          borderRadius: '16px',
-          border: '1px dashed var(--border-light)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px dashed var(--border-subtle)',
           color: 'var(--text-muted)'
         }}>
-          <History size={36} color="var(--text-dim)" style={{ margin: '0 auto 12px' }} />
-          <p>暂无已完成的训练记录，立即开启你的第一次训练吧！</p>
+          <History size={40} color="var(--text-dim)" style={{ margin: '0 auto 16px' }} />
+          <p>暂无已完成的训练记录，选择一份分化计划开始你的初次打卡！</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           {workouts.map(workout => {
             const dateStr = new Date(workout.startTime).toLocaleDateString('zh-CN', {
               year: 'numeric',
@@ -85,66 +85,71 @@ export const WorkoutHistory: React.FC = () => {
                 key={workout.id}
                 style={{
                   backgroundColor: 'var(--bg-surface)',
-                  borderRadius: '16px',
-                  border: '1px solid var(--border-dim)',
-                  padding: '18px 20px',
+                  borderRadius: 'var(--radius-lg)',
+                  border: '1px solid var(--border-subtle)',
+                  padding: '22px 24px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '12px'
+                  gap: '14px',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <div>
-                    <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-main)' }}>
+                    <h2 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)' }}>
                       {workout.name}
                     </h2>
-                    <div style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '2px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '3px' }}>
                       {dateStr}
                     </div>
                   </div>
 
                   <button
                     onClick={() => handleDelete(workout.id)}
-                    style={{ color: 'var(--text-dim)', padding: '4px' }}
+                    style={{ color: 'var(--text-dim)', padding: '6px' }}
                     title="删除历史"
                   >
                     <Trash2 size={16} />
                   </button>
                 </div>
 
-                {/* 核心三围指标 */}
+                {/* 核心三围指标 (等宽对齐) */}
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr 1fr',
-                  gap: '8px',
+                  gap: '12px',
                   backgroundColor: 'var(--bg-dark)',
-                  borderRadius: '12px',
-                  padding: '12px',
-                  border: '1px solid var(--border-dim)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '14px 18px',
+                  border: '1px solid var(--border-subtle)',
                   textAlign: 'center'
                 }}>
                   <div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>训练时长</div>
-                    <div style={{ fontSize: '16px', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-main)', marginTop: '2px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>训练耗时</div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginTop: '3px' }} className="font-mono">
                       {formatDuration(workout.durationSeconds)}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>总训练容量</div>
-                    <div style={{ fontSize: '16px', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--neon-green)', marginTop: '2px' }}>
-                      {workout.totalVolumeKg} <span style={{ fontSize: '10px' }}>kg</span>
+                    <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>有效总容量</div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--neon-green)', marginTop: '3px' }} className="font-mono">
+                      {workout.totalVolumeKg} <span style={{ fontSize: '11px' }}>kg</span>
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-dim)' }}>完成总组数</div>
-                    <div style={{ fontSize: '16px', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--text-main)', marginTop: '2px' }}>
-                      {workout.setsCount} <span style={{ fontSize: '10px' }}>组</span>
+                    <div style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700 }}>打卡总组数</div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-main)', marginTop: '3px' }} className="font-mono">
+                      {workout.setsCount} <span style={{ fontSize: '11px' }}>组</span>
                     </div>
                   </div>
                 </div>
 
-                {/* 各动作具体记录简述 */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {/* 各动作具体记录明细 */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '8px'
+                }}>
                   {exerciseIds.map(exId => {
                     const ex = exercisesMap[exId];
                     const exSets = sets.filter(s => s.exerciseId === exId && s.isCompleted);
@@ -157,17 +162,18 @@ export const WorkoutHistory: React.FC = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '6px 10px',
-                          borderRadius: '8px',
+                          padding: '10px 14px',
+                          borderRadius: 'var(--radius-sm)',
                           backgroundColor: 'var(--bg-surface-hover)',
-                          fontSize: '12px'
+                          border: '1px solid var(--border-subtle)',
+                          fontSize: '13px'
                         }}
                       >
-                        <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>
+                        <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>
                           {ex ? ex.name : '训练动作'}
                         </span>
-                        <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                          {exSets.length} 组 · 最高 {bestSet.weightKg}kg × {bestSet.reps}
+                        <div style={{ color: 'var(--text-secondary)' }} className="font-mono">
+                          {exSets.length}组 · 最高 {bestSet.weightKg}kg × {bestSet.reps}
                         </div>
                       </div>
                     );
