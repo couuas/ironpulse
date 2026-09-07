@@ -7,6 +7,7 @@ import { ActiveWorkoutView } from './components/ActiveWorkout/ActiveWorkoutView'
 import { RoutineList } from './components/Routines/RoutineList';
 import { ExerciseLibrary } from './components/Exercises/ExerciseLibrary';
 import { WorkoutHistory } from './components/Workouts/WorkoutHistory';
+import { AnalyticsDashboard } from './components/Analytics/AnalyticsDashboard';
 import { RestTimerBar } from './components/ActiveWorkout/RestTimerBar';
 import { PlateCalculatorModal } from './components/ActiveWorkout/PlateCalculatorModal';
 
@@ -36,6 +37,9 @@ export function AppContent() {
         )}
         {currentTab === 'routines' && (
           <RoutineList onStartRoutine={() => setCurrentTab('active')} />
+        )}
+        {currentTab === 'analytics' && (
+          <AnalyticsDashboard onNavigateTab={(tab) => setCurrentTab(tab as NavTab)} />
         )}
         {currentTab === 'exercises' && (
           <ExerciseLibrary />

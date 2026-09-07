@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Flame, Play, Dumbbell, Award, History, TrendingUp, SlidersHorizontal, ArrowRight, Zap, Target } from 'lucide-react';
+import { 
+  Flame, 
+  Play, 
+  Dumbbell, 
+  Award, 
+  History, 
+  TrendingUp, 
+  SlidersHorizontal, 
+  ArrowRight, 
+  Zap, 
+  Target,
+  BarChart2
+} from 'lucide-react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { db } from '../../db/db';
 import { Routine, Workout, PersonalRecord } from '../../types/workout';
@@ -7,7 +19,7 @@ import { formatDuration } from '../../services/calculations';
 import { PlateCalculatorModal } from '../ActiveWorkout/PlateCalculatorModal';
 
 interface DashboardOverviewProps {
-  onNavigate: (tab: 'workouts' | 'routines' | 'exercises' | 'active') => void;
+  onNavigate: (tab: 'workouts' | 'routines' | 'exercises' | 'active' | 'analytics') => void;
 }
 
 export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate }) => {
@@ -90,97 +102,69 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         </div>
       )}
 
-      {/* 顶部主工作台看板 (Hero Section) */}
+      {/* 顶栏欢迎区与快速工具 */}
       <div style={{
-        padding: '32px',
-        borderRadius: 'var(--radius-xl)',
-        backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-subtle)',
-        marginBottom: '24px',
-        position: 'relative',
-        overflow: 'hidden',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+        marginBottom: '28px'
       }}>
-        {/* 背景高斯霓虹球 */}
-        <div style={{
-          position: 'absolute',
-          top: '-60px',
-          right: '-40px',
-          width: '260px',
-          height: '260px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(34, 197, 94, 0.18) 0%, transparent 70%)',
-          pointerEvents: 'none'
-        }} />
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-          <div style={{
-            padding: '4px 12px',
-            borderRadius: 'var(--radius-full)',
-            backgroundColor: 'var(--neon-green-dim)',
-            color: 'var(--neon-green)',
-            fontSize: '11px',
-            fontWeight: 800,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '5px',
-            border: '1px solid rgba(34, 197, 94, 0.25)'
-          }}>
-            <Zap size={13} />
-            <span>STEALTH WORKSTATION READY</span>
-          </div>
+        <div>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
+            训练总控台
+          </h1>
+          <p style={{ color: 'var(--text-dim)', fontSize: '13px', marginTop: '4px' }}>
+            Stealth Precision 暗影精密 · 力量进阶与生理负荷追踪系统
+          </p>
         </div>
 
-        <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.8px', marginBottom: '10px' }}>
-          掌控每一组负荷，雕刻每一寸肌肉
-        </h1>
-        <p style={{ fontSize: '15px', color: 'var(--text-secondary)', maxWidth: '640px', lineHeight: 1.6 }}>
-          100% 本地优先（Local-First）极速运转，断网零等待。大屏幕做周期编排与复盘，健身房做秒级单手精准记录。
-        </p>
-
-        {/* 快捷操作区 */}
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
-            onClick={() => onNavigate('routines')}
+            onClick={() => onNavigate('analytics')}
             style={{
-              padding: '10px 20px',
-              borderRadius: '10px',
-              backgroundColor: 'var(--neon-green)',
-              color: '#07080b',
-              fontSize: '14px',
-              fontWeight: 800,
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              boxShadow: '0 0 16px var(--neon-green-glow)'
+              padding: '9px 16px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(34, 197, 94, 0.12)',
+              border: '1px solid var(--neon-green)',
+              color: 'var(--neon-green)',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
             }}
           >
-            <Play size={16} fill="#07080b" strokeWidth={2} />
-            <span>开启今天训练</span>
+            <BarChart2 size={16} />
+            <span>肌群热力图与 1RM 深度 →</span>
           </button>
 
           <button
             onClick={() => setIsPlateModalOpen(true)}
             style={{
-              padding: '10px 18px',
-              borderRadius: '10px',
-              backgroundColor: 'var(--bg-surface-hover)',
-              border: '1px solid var(--border-medium)',
-              color: 'var(--text-main)',
-              fontSize: '14px',
-              fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '8px',
+              padding: '9px 16px',
+              borderRadius: '10px',
+              backgroundColor: 'var(--bg-surface)',
+              border: '1px solid var(--border-medium)',
+              color: 'var(--text-secondary)',
+              fontWeight: 600,
+              fontSize: '13px',
+              cursor: 'pointer'
             }}
           >
-            <SlidersHorizontal size={16} color="var(--neon-green)" />
-            <span>杠铃片配重计算</span>
+            <SlidersHorizontal size={15} color="var(--neon-green)" />
+            <span>杠铃配重计算</span>
           </button>
         </div>
       </div>
 
-      {/* 4 维指标栅格 (Desktop 4-Col / Mobile 2-Col) */}
+      {/* 四大核心数据看板统计卡 */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -197,7 +181,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
           </div>
         </div>
 
-        <div style={statCardStyle}>
+        <div 
+          style={{ ...statCardStyle, cursor: 'pointer' }}
+          onClick={() => onNavigate('analytics')}
+          title="点击进入 PR 荣誉殿堂"
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
             <span>打破历史 PR</span>
             <Award size={16} color="var(--gold-pr)" />

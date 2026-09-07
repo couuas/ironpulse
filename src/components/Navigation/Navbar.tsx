@@ -1,9 +1,17 @@
 import React from 'react';
-import { Dumbbell, Calendar, History, Activity, Flame, SlidersHorizontal } from 'lucide-react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { formatDuration } from '../../services/calculations';
+import { 
+  Flame, 
+  Dumbbell, 
+  Calendar, 
+  Activity, 
+  History, 
+  SlidersHorizontal,
+  BarChart2
+} from 'lucide-react';
 
-export type NavTab = 'dashboard' | 'workouts' | 'routines' | 'exercises' | 'active';
+export type NavTab = 'dashboard' | 'active' | 'routines' | 'exercises' | 'workouts' | 'analytics';
 
 interface NavbarProps {
   currentTab: NavTab;
@@ -11,40 +19,43 @@ interface NavbarProps {
   onOpenPlateCalc?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenPlateCalc }) => {
+export const Navbar: React.FC<NavbarProps> = ({ 
+  currentTab, 
+  onSelectTab,
+  onOpenPlateCalc 
+}) => {
   const { isWorkoutActive, elapsedSeconds } = useWorkout();
 
   return (
     <>
-      {/* 顶部常驻顶栏 (大屏 1400px 居中对齐) */}
       <header style={{
+        backgroundColor: 'rgba(12, 14, 20, 0.85)',
+        backdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--border-subtle)',
         position: 'sticky',
         top: 0,
         zIndex: 40,
         height: '64px',
-        backgroundColor: 'var(--bg-glass)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid var(--border-subtle)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0 24px',
+        padding: '0 20px'
       }}>
         <div style={{
           width: '100%',
-          maxWidth: '1400px',
+          maxWidth: '1440px',
+          margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          {/* 品牌标识与 Pro 徽章 */}
+          {/* 品牌标识 Logo */}
           <div 
+            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
             onClick={() => onSelectTab('dashboard')}
-            style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
           >
             <div style={{
-              width: '36px',
-              height: '36px',
+              width: '34px',
+              height: '34px',
               borderRadius: '11px',
               background: 'linear-gradient(135deg, #22c55e, #15803d)',
               display: 'flex',
@@ -73,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
             </div>
           </div>
 
-          {/* 桌面端导航中心区 (含极简快捷按键暗示) */}
+          {/* 桌面端导航中心区 */}
           <nav style={{ display: 'none', gap: '6px' }} className="desktop-nav">
             <button 
               onClick={() => onSelectTab('dashboard')}
@@ -86,6 +97,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
               style={navBtnStyle(currentTab === 'routines')}
             >
               <span>分化计划</span>
+            </button>
+            <button 
+              onClick={() => onSelectTab('analytics')}
+              style={navBtnStyle(currentTab === 'analytics')}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <BarChart2 size={15} color={currentTab === 'analytics' ? 'var(--neon-green)' : 'currentColor'} />
+                <span>数据深度</span>
+              </div>
             </button>
             <button 
               onClick={() => onSelectTab('exercises')}
@@ -210,7 +230,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
           <span>计划</span>
         </button>
 
-        {isWorkoutActive && (
+        {isWorkoutActive ? (
           <button 
             onClick={() => onSelectTab('active')}
             style={{
@@ -232,6 +252,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
               <Dumbbell size={20} strokeWidth={2.5} />
             </div>
             <span style={{ fontSize: '10px', marginTop: '2px', fontWeight: 800 }}>打卡中</span>
+          </button>
+        ) : (
+          <button 
+            onClick={() => onSelectTab('analytics')}
+            style={mobileTabStyle(currentTab === 'analytics')}
+          >
+            <BarChart2 size={20} />
+            <span>深度</span>
           </button>
         )}
 

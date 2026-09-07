@@ -7,6 +7,7 @@ import { useWorkout } from '../../context/WorkoutContext';
 import { formatDuration, calculateBarbellPlates, calculateEpley1RM } from '../../services/calculations';
 import { SetType, Exercise, MUSCLE_GROUP_LABELS } from '../../types/workout';
 import { PlateCalculatorModal } from './PlateCalculatorModal';
+import { ExerciseTrendChart } from '../Analytics/ExerciseTrendChart';
 import { db } from '../../db/db';
 
 interface ActiveWorkoutViewProps {
@@ -692,6 +693,12 @@ export const ActiveWorkoutView: React.FC<ActiveWorkoutViewProps> = ({ onBackToDa
                   <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>kg (Epley 理论极量)</span>
                 </div>
               </div>
+
+              {/* 动作 1RM 历史走势微图 (大屏巡视器常驻) */}
+              <ExerciseTrendChart
+                compact
+                exerciseId={currentInspectedGroup.exercise.id}
+              />
             </div>
           ) : (
             <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-dim)' }}>
