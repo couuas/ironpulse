@@ -1,5 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import { Exercise, Routine, Workout, WorkoutSet, PersonalRecord } from '../types/workout';
+import { Exercise, Routine, Workout, WorkoutSet, PersonalRecord, BodyMeasurement } from '../types/workout';
 import { SEED_EXERCISES, SEED_ROUTINES } from './seedExercises';
 
 export class IronPulseDatabase extends Dexie {
@@ -8,6 +8,7 @@ export class IronPulseDatabase extends Dexie {
   workouts!: Table<Workout, string>;
   workoutSets!: Table<WorkoutSet, string>;
   personalRecords!: Table<PersonalRecord, string>;
+  bodyMeasurements!: Table<BodyMeasurement, string>;
 
   constructor() {
     super('IronPulseDB');
@@ -17,6 +18,10 @@ export class IronPulseDatabase extends Dexie {
       workouts: 'id, routineId, startTime, status',
       workoutSets: 'id, workoutId, exerciseId, [workoutId+exerciseId], isCompleted, completedAt',
       personalRecords: 'id, exerciseId, recordType, value, achievedAt'
+    });
+
+    this.version(2).stores({
+      bodyMeasurements: 'id, date, createdAt'
     });
   }
 }

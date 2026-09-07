@@ -8,12 +8,16 @@ import { RoutineList } from './components/Routines/RoutineList';
 import { ExerciseLibrary } from './components/Exercises/ExerciseLibrary';
 import { WorkoutHistory } from './components/Workouts/WorkoutHistory';
 import { AnalyticsDashboard } from './components/Analytics/AnalyticsDashboard';
+import { BodyTracker } from './components/Body/BodyTracker';
 import { RestTimerBar } from './components/ActiveWorkout/RestTimerBar';
 import { PlateCalculatorModal } from './components/ActiveWorkout/PlateCalculatorModal';
+import { DataManagementModal } from './components/Settings/DataManagementModal';
+import { PWAInstallBanner } from './components/Navigation/PWAInstallBanner';
 
 export function AppContent() {
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
   const [isPlateModalOpen, setIsPlateModalOpen] = useState<boolean>(false);
+  const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // 首次启动注入预置动作与经典模板
@@ -26,6 +30,7 @@ export function AppContent() {
         currentTab={currentTab} 
         onSelectTab={setCurrentTab}
         onOpenPlateCalc={() => setIsPlateModalOpen(true)}
+        onOpenDataManagement={() => setIsDataModalOpen(true)}
       />
 
       <main style={{ flex: 1 }}>
@@ -41,6 +46,9 @@ export function AppContent() {
         {currentTab === 'analytics' && (
           <AnalyticsDashboard onNavigateTab={(tab) => setCurrentTab(tab as NavTab)} />
         )}
+        {currentTab === 'body' && (
+          <BodyTracker />
+        )}
         {currentTab === 'exercises' && (
           <ExerciseLibrary />
         )}
@@ -52,11 +60,24 @@ export function AppContent() {
       {/* 全局挂载的组间休息倒计时条 (切换页面依然置顶悬浮) */}
       <RestTimerBar />
 
+      {/* PWA 独立安装提示横幅 */}
+      <PWAInstallBanner />
+
       {/* 顶部工具栏直接唤起的杠铃片配重弹窗 */}
       {isPlateModalOpen && (
         <PlateCalculatorModal
           initialWeight={70}
           onClose={() => setIsPlateModalOpen(false)}
+        />
+      )}
+
+      {/* 数据完全自主权与备份中心弹窗 */}
+      {isDataModalOpen && (
+        <DataManagementModal
+          onClose={() => setIsDataModalOpen(false)}
+          onDataChanged={() => {
+            // 数据变动后可触发刷新当前视图
+          }}
         />
       )}
     </div>

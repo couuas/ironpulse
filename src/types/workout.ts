@@ -116,3 +116,19 @@ export interface PersonalRecord {
   achievedAt: number;
   workoutSetId?: string;
 }
+
+export interface BodyMeasurement {
+  id: string;
+  date: string; // 格式: YYYY-MM-DD
+  weightKg: number;
+  chestCm?: number;      // 胸围 (cm)
+  waistCm?: number;      // 腰围 (cm)
+  hipsCm?: number;       // 臀围 (cm)
+  bicepsLeftCm?: number; // 左臂围 (cm)
+  bicepsRightCm?: number;// 右臂围 (cm)
+  thighLeftCm?: number;  // 左大腿围 (cm)
+  thighRightCm?: number; // 右大腿围 (cm)
+  calvesCm?: number;     // 小腿围 (cm)
+  note?: string;         // 备注 (如: 练后空腹、轻微水肿等)
+  createdAt: number;
+}

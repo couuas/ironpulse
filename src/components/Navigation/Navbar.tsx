@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Dumbbell, Activity, Calendar, History, BarChart2, 
-  SlidersHorizontal, Volume2, VolumeX, Vibrate
+  SlidersHorizontal, Volume2, VolumeX, Vibrate, Scale, Database
 } from 'lucide-react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { formatDuration } from '../../services/calculations';
 import { feedback } from '../../services/feedback';
 
-export type NavTab = 'dashboard' | 'routines' | 'active' | 'exercises' | 'workouts' | 'analytics';
+export type NavTab = 'dashboard' | 'routines' | 'active' | 'exercises' | 'workouts' | 'analytics' | 'body';
 
 interface NavbarProps {
   currentTab: NavTab;
   onSelectTab: (tab: NavTab) => void;
   onOpenPlateCalc?: () => void;
+  onOpenDataManagement?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenPlateCalc }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  currentTab,
+  onSelectTab,
+  onOpenPlateCalc,
+  onOpenDataManagement
+}) => {
   const { isWorkoutActive, elapsedSeconds } = useWorkout();
   const [soundEnabled, setSoundEnabled] = useState<boolean>(feedback.isSoundEnabled());
   const [vibrationEnabled, setVibrationEnabled] = useState<boolean>(feedback.isVibrationEnabled());
@@ -127,6 +133,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
               </div>
             </button>
             <button 
+              onClick={() => onSelectTab('body')}
+              style={navBtnStyle(currentTab === 'body')}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Scale size={15} color={currentTab === 'body' ? 'var(--neon-green)' : 'currentColor'} />
+                <span>体态追踪</span>
+              </div>
+            </button>
+            <button 
               onClick={() => onSelectTab('exercises')}
               style={navBtnStyle(currentTab === 'exercises')}
             >
@@ -163,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
               {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
             </button>
 
-            {/* 全局马达震动开关 (桌面端隐藏/移动端优先) */}
+            {/* 全局马达震动开关 */}
             <button
               onClick={handleToggleVibration}
               style={{
@@ -184,6 +199,31 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
               <Vibrate size={16} />
             </button>
 
+            {/* 数据管理/备份恢复中心入口 */}
+            {onOpenDataManagement && (
+              <button
+                onClick={onOpenDataManagement}
+                style={{
+                  padding: '7px 10px',
+                  borderRadius: '9px',
+                  backgroundColor: 'var(--bg-surface)',
+                  border: '1px solid var(--border-subtle)',
+                  color: 'var(--text-secondary)',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+                title="数据完全自主权与迁移中心 (导出/导入备份)"
+              >
+                <Database size={15} color="var(--neon-green)" />
+                <span className="desktop-tool-btn" style={{ display: 'none' }}>数据备份</span>
+              </button>
+            )}
+
+            {/* 杠铃配重入口 */}
             {onOpenPlateCalc && (
               <button
                 onClick={onOpenPlateCalc}
@@ -208,6 +248,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
               </button>
             )}
 
+            {/* 进行中 / 开始训练 */}
             {isWorkoutActive ? (
               <button
                 onClick={() => onSelectTab('active')}
@@ -325,19 +366,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, onOpenP
         )}
 
         <button 
+          onClick={() => onSelectTab('body')}
+          style={mobileTabStyle(currentTab === 'body')}
+        >
+          <Scale size={20} />
+          <span>体态</span>
+        </button>
+
+        <button 
           onClick={() => onSelectTab('exercises')}
           style={mobileTabStyle(currentTab === 'exercises')}
         >
           <Dumbbell size={20} />
           <span>动作库</span>
-        </button>
-
-        <button 
-          onClick={() => onSelectTab('workouts')}
-          style={mobileTabStyle(currentTab === 'workouts')}
-        >
-          <History size={20} />
-          <span>历史</span>
         </button>
       </div>
 

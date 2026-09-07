@@ -1,0 +1,19 @@
+{
+  "name": "IronPulse 铁律 - 力量与体态工作站",
+  "short_name": "IronPulse",
+  "description": "极简、硬核、科学的力量举与健美极速打卡工作站，纯本地 Local-First 运行",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07080b",
+  "theme_color": "#0c0e14",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["fitness", "sports", "productivity"]
+}

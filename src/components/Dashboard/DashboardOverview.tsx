@@ -10,7 +10,8 @@ import {
   ArrowRight, 
   Zap, 
   Target,
-  BarChart2
+  BarChart2,
+  Scale
 } from 'lucide-react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { db } from '../../db/db';
@@ -19,7 +20,7 @@ import { formatDuration } from '../../services/calculations';
 import { PlateCalculatorModal } from '../ActiveWorkout/PlateCalculatorModal';
 
 interface DashboardOverviewProps {
-  onNavigate: (tab: 'workouts' | 'routines' | 'exercises' | 'active' | 'analytics') => void;
+  onNavigate: (tab: 'workouts' | 'routines' | 'exercises' | 'active' | 'analytics' | 'body') => void;
 }
 
 export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate }) => {
@@ -58,69 +59,92 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
           onClick={() => onNavigate('active')}
           style={{
             marginBottom: '24px',
-            padding: '20px 24px',
-            borderRadius: 'var(--radius-lg)',
-            background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(21, 128, 61, 0.18))',
+            padding: '16px 20px',
+            backgroundColor: 'rgba(34, 197, 94, 0.12)',
             border: '1px solid var(--neon-green)',
-            boxShadow: '0 0 24px var(--neon-green-glow)',
+            borderRadius: 'var(--radius-lg)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: 'pointer',
-            animation: 'pulseGlow 2s infinite'
+            animation: 'pulseGlow 2.5s infinite'
           }}
         >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--neon-green)'
-              }} />
-              <span style={{ fontWeight: 800, fontSize: '17px', color: 'var(--text-main)' }}>
-                {activeWorkout?.name || '训练进行中'}
-              </span>
-            </div>
-            <div style={{ fontSize: '13px', color: 'var(--neon-green)', marginTop: '4px', fontWeight: 700 }} className="font-mono">
-              已持续: {formatDuration(elapsedSeconds)} · 点击此处无缝回到打卡台 →
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '12px',
+              height: '12px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--neon-green)',
+              boxShadow: '0 0 10px var(--neon-green)'
+            }} />
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '15px', color: 'var(--neon-green)' }}>
+                当前训练正在进行中: {activeWorkout?.name}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                点击快速返回打卡现场 · 持续时间: <b className="font-mono">{formatDuration(elapsedSeconds)}</b>
+              </div>
             </div>
           </div>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
+          <button style={{
+            padding: '8px 14px',
+            borderRadius: '8px',
             backgroundColor: 'var(--neon-green)',
             color: '#07080b',
+            fontWeight: 800,
+            fontSize: '12px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 10px var(--neon-green-glow)'
+            gap: '4px'
           }}>
-            <ArrowRight size={22} strokeWidth={2.8} />
-          </div>
+            <span>继续打卡</span>
+            <ArrowRight size={14} />
+          </button>
         </div>
       )}
 
-      {/* 顶栏欢迎区与快速工具 */}
+      {/* 仪表盘欢迎与顶栏快捷工具入口 */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        marginBottom: '24px',
         flexWrap: 'wrap',
-        gap: '16px',
-        marginBottom: '28px'
+        gap: '12px'
       }}>
         <div>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
-            训练总控台
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="badge-neon">LOCAL-FIRST WORKSTATION</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>极速离线 · 科学力量管理</span>
+          </div>
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
+            训练仪表盘概览
           </h1>
-          <p style={{ color: 'var(--text-dim)', fontSize: '13px', marginTop: '4px' }}>
-            Stealth Precision 暗影精密 · 力量进阶与生理负荷追踪系统
-          </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => onNavigate('body')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              borderRadius: '10px',
+              backgroundColor: 'rgba(59, 130, 246, 0.12)',
+              border: '1px solid var(--accent-blue)',
+              color: 'var(--accent-blue)',
+              fontWeight: 700,
+              fontSize: '13px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <Scale size={16} />
+            <span>体态与 7MA 均线 →</span>
+          </button>
+
           <button
             onClick={() => onNavigate('analytics')}
             style={{
