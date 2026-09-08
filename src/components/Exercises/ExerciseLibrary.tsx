@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Filter, Info, X, Dumbbell } from 'lucide-react';
 import { Exercise, MuscleGroup, MUSCLE_GROUP_LABELS, EquipmentType, EQUIPMENT_LABELS } from '../../types/workout';
 import { db } from '../../db/db';
+import { syncService } from '../../services/syncService';
 
 export const ExerciseLibrary: React.FC = () => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -20,8 +21,8 @@ export const ExerciseLibrary: React.FC = () => {
   const [newRest, setNewRest] = useState(90);
 
   const loadExercises = async () => {
-    const list = await db.exercises.toArray();
-    setExercises(list);
+    const rawList = await db.exercises.toArray();
+    setExercises(rawList.filter(ex => !ex.isDeleted));
   };
 
   useEffect(() => {
@@ -41,8 +42,9 @@ export const ExerciseLibrary: React.FC = () => {
     e.preventDefault();
     if (!newName.trim()) return;
 
+    const now = Date.now();
     const newEx: Exercise = {
-      id: `ex-custom-${Date.now()}`,
+      id: `ex-custom-${now}`,
       name: newName.trim(),
       nameEn: newNameEn.trim() || undefined,
       targetMuscle: newMuscle,
@@ -51,11 +53,14 @@ export const ExerciseLibrary: React.FC = () => {
       defaultRestSeconds: newRest,
       isCustom: true,
       notes: newNotes.trim() || undefined,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      createdAt: now,
+      updatedAt: now,
+      syncStatus: 1, // PENDING_CREATE
+      isDeleted: false
     };
 
     await db.exercises.add(newEx);
+    await syncService.refreshPendingCount();
     setIsNewModalOpen(false);
     setNewName('');
     setNewNameEn('');

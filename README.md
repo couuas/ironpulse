@@ -95,15 +95,46 @@ npm run build
 
 ---
 
+## ☁️ v0.0.2 自主部署与云端协同 (Self-Hosted & Sync)
+
+IronPulse 采用 **分布式双轨架构 (Local-First + Sync)**：
+- **前端 PWA**：依旧 100% 本地可用，保持断网 0ms 读写响应。
+- **极客自建后端**：基于 Node.js + SQLite，内存开销 < 80MB，无需复杂外部数据库。
+
+### 1. Docker 一键自建部署
+在服务器或 NAS 上运行：
+```bash
+# 启动自建同步服务 (默认映射 3001 端口，持久化数据至 ./server/data)
+docker compose up -d
+```
+
+### 2. 源码本地运行后端
+```bash
+cd server
+npm install
+npm run build
+npm run start # 或 npm run dev 进行热重载开发
+```
+
+### 3. 前端连接自建云
+1. 打开应用右上角 **云同步** 图标。
+2. 输入自建服务器地址（如 `http://localhost:3001` 或自建反向代理域名 `https://sync.your-domain.com`）。
+3. 注册或登录专属极客账号，即刻打通手机、平板、PC 之间的增量数据协同！
+
+---
+
 ## 📂 详细产品与设计文档
 
-完整的技术设计与研发标准已归档在 [`docs/`](./docs/) 目录下：
+完整的技术设计与研发标准已归档在 [`docs/`](./docs/) 与 [`plans/`](./plans/) 目录下：
+- [v0.0.2 功能需求说明书 (v0.0.2_requirements.md)](./docs/v0.0.2_requirements.md)
+- [v0.0.2 架构与同步设计说明书 (v0.0.2_system_design.md)](./docs/v0.0.2_system_design.md)
+- [v0.0.2 Phase 1 实施计划 (v0.0.2_phase_1_infrastructure.md)](./plans/v0.0.2_phase_1_infrastructure.md)
+- [v0.0.2 Phase 2 实施计划 (v0.0.2_phase_2_sync_engine.md)](./plans/v0.0.2_phase_2_sync_engine.md)
 - [产品竞品调研与商业规划 (fitness_product_strategy.md)](./docs/fitness_product_strategy.md)
 - [详细功能需求说明书 (functional_requirements_specification.md)](./docs/functional_requirements_specification.md)
 - [系统架构与软件设计文档 (software_design_document.md)](./docs/software_design_document.md)
 - [视觉设计规范与双模态系统 (design_system.md)](./docs/design_system.md)
 - [研发进度追踪与验收矩阵 (rd_tracking_plan.md)](./docs/rd_tracking_plan.md)
-- [Phase 1 研发实施与验收计划 (phase_1.md)](./plans/phase_1.md)
 
 ---
 

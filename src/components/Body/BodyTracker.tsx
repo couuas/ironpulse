@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import { db } from '../../db/db';
 import { BodyMeasurement } from '../../types/workout';
+import { softDeleteBodyMeasurement } from '../../db/syncRepo';
+import { syncService } from '../../services/syncService';
 import { 
   compute7DayMovingAverage, 
   getBodyMetricsSummary, 
@@ -27,7 +29,7 @@ export const BodyTracker: React.FC = () => {
   const loadRecords = async () => {
     setIsLoading(true);
     const data = await db.bodyMeasurements.orderBy('date').toArray();
-    setRecords(data);
+    setRecords(data.filter(d => !d.isDeleted));
     setIsLoading(false);
   };
 
@@ -37,7 +39,8 @@ export const BodyTracker: React.FC = () => {
 
   const handleDelete = async (id: string, dateStr: string) => {
     if (window.confirm(`确定删除 ${dateStr} 的体态记录吗？`)) {
-      await db.bodyMeasurements.delete(id);
+      await softDeleteBodyMeasurement(id);
+      await syncService.refreshPendingCount();
       feedback.playCheckSound();
       loadRecords();
     }

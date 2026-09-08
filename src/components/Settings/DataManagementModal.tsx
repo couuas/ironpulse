@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Database, Download, Upload, Trash2, CheckCircle2, 
-  AlertTriangle, RefreshCw, X, FileSpreadsheet, ShieldAlert, Check
+  AlertTriangle, RefreshCw, X, FileSpreadsheet, ShieldAlert, Check, Cloud
 } from 'lucide-react';
 import { 
   exportFullBackupJSON, 
@@ -15,11 +15,13 @@ import { feedback } from '../../services/feedback';
 interface DataManagementModalProps {
   onClose: () => void;
   onDataChanged?: () => void;
+  onOpenCloudSync?: () => void;
 }
 
 export const DataManagementModal: React.FC<DataManagementModalProps> = ({
   onClose,
-  onDataChanged
+  onDataChanged,
+  onOpenCloudSync
 }) => {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [isImporting, setIsImporting] = useState<boolean>(false);
@@ -183,6 +185,52 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({
         </div>
 
         <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* v0.0.2 云端协同与多端同步专属入口横幅 */}
+          {onOpenCloudSync && (
+            <div style={{
+              padding: '14px 16px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%)',
+              border: '1px solid rgba(34, 197, 94, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+                  <Cloud size={16} color="var(--neon-green)" />
+                  <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)' }}>
+                    v0.0.2 云端协同与自主部署
+                  </span>
+                </div>
+                <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                  通过 Docker 自建 Node.js + SQLite 私有轻量后端，实现多设备增量静默同步
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenCloudSync();
+                }}
+                style={{
+                  padding: '7px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--neon-green)',
+                  color: '#07080b',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  flexShrink: 0,
+                  boxShadow: '0 0 10px var(--neon-green-glow)'
+                }}
+              >
+                配置自建云
+              </button>
+            </div>
+          )}
+
           {/* 1. 数据导出模块 */}
           <div>
             <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-main)', marginBottom: '6px' }}>

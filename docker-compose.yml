@@ -1,0 +1,28 @@
+services:
+  ironpulse-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: ironpulse-server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - JWT_SECRET=ironpulse_self_hosted_secure_jwt_secret_key_2026
+      # 极客免密专属 API Key (配置后前端可输入该 Key 一键秒连，免去繁琐注册流程)
+      - IRONPULSE_API_KEY=ironpulse_geek_secret_key_2026
+      - DB_PATH=/app/data/ironpulse.sqlite
+    volumes:
+      - ./server/data:/app/data
+
+  # =========================================================================
+  # [极客零门槛内网穿透可选组件]
+  # 解决“在健身房地下室手机 5G 无法访问家庭 NAS/内网 PC 自建服”的核心痛点。
+  # 使用免费零端口映射的 Cloudflare Tunnel：
+  # =========================================================================
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: ironpulse-tunnel
+  #   restart: unless-stopped
+  #   command: tunnel --no-autoupdate run --token <YOUR_CLOUDFLARE_TUNNEL_TOKEN>

@@ -3,6 +3,7 @@ import { X, Check, Scale, ChevronDown, ChevronUp } from 'lucide-react';
 import { BodyMeasurement } from '../../types/workout';
 import { db } from '../../db/db';
 import { feedback } from '../../services/feedback';
+import { syncService } from '../../services/syncService';
 
 interface BodyEntryModalProps {
   initialMeasurement?: BodyMeasurement | null;
@@ -58,8 +59,9 @@ export const BodyEntryModal: React.FC<BodyEntryModalProps> = ({
       return;
     }
 
+    const now = Date.now();
     const measurement: BodyMeasurement = {
-      id: initialMeasurement?.id || `bm-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+      id: initialMeasurement?.id || `bm-${now}-${Math.random().toString(36).substr(2, 5)}`,
       date,
       weightKg: Math.round(parsedWeight * 100) / 100,
       chestCm: chestCm ? parseFloat(chestCm) : undefined,
@@ -71,10 +73,14 @@ export const BodyEntryModal: React.FC<BodyEntryModalProps> = ({
       thighRightCm: thighRightCm ? parseFloat(thighRightCm) : undefined,
       calvesCm: calvesCm ? parseFloat(calvesCm) : undefined,
       note: note.trim() || undefined,
-      createdAt: initialMeasurement?.createdAt || Date.now()
+      createdAt: initialMeasurement?.createdAt || now,
+      updatedAt: now,
+      syncStatus: 1, // PENDING_CREATE / UPDATE
+      isDeleted: false
     };
 
     await db.bodyMeasurements.put(measurement);
+    await syncService.refreshPendingCount();
     feedback.playCheckSound();
     onSaved();
     onClose();

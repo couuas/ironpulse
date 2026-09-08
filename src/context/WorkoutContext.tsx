@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import confetti from 'canvas-confetti';
-import { Workout, WorkoutSet, Exercise, Routine, SetType, PersonalRecord } from '../types/workout';
+import { Workout, WorkoutSet, Exercise, Routine, SetType, PersonalRecord, SYNC_STATUS } from '../types/workout';
 import { db } from '../db/db';
 import { feedback } from '../services/feedback';
 import { calculateEpley1RM } from '../services/calculations';
+import { syncService } from '../services/syncService';
 
 export interface ExerciseGroup {
   exercise: Exercise;
@@ -169,7 +170,11 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
       durationSeconds: 0,
       totalVolumeKg: 0,
       setsCount: 0,
-      status: 'active'
+      status: 'active',
+      createdAt: now,
+      updatedAt: now,
+      syncStatus: SYNC_STATUS.PENDING_CREATE,
+      isDeleted: false
     };
 
     const initialGroups: ExerciseGroup[] = [];
@@ -190,7 +195,11 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
               setType: 'normal',
               weightKg: ghostSet ? ghostSet.weightKg : 20,
               reps: ghostSet ? ghostSet.reps : 10,
-              isCompleted: false
+              isCompleted: false,
+              createdAt: now,
+              updatedAt: now,
+              syncStatus: SYNC_STATUS.PENDING_CREATE,
+              isDeleted: false
             });
           }
           initialGroups.push({
@@ -215,6 +224,7 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
     const firstWeight = ghost[0]?.weightKg || (exercise.equipment === 'barbell' ? 20 : 10);
     const firstReps = ghost[0]?.reps || 10;
 
+    const now = Date.now();
     const newSet: WorkoutSet = {
       id: `set-${activeWorkout.id}-${exercise.id}-1`,
       workoutId: activeWorkout.id,
@@ -223,7 +233,11 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
       setType: 'normal',
       weightKg: firstWeight,
       reps: firstReps,
-      isCompleted: false
+      isCompleted: false,
+      createdAt: now,
+      updatedAt: now,
+      syncStatus: SYNC_STATUS.PENDING_CREATE,
+      isDeleted: false
     };
 
     setExerciseGroups(prev => [
@@ -248,6 +262,7 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
       if (group.exercise.id !== exerciseId) return group;
       const lastSet = group.sets[group.sets.length - 1];
       const nextNumber = group.sets.length + 1;
+      const now = Date.now();
       const newSet: WorkoutSet = {
         id: `set-${activeWorkout.id}-${exerciseId}-${nextNumber}`,
         workoutId: activeWorkout.id,
@@ -256,7 +271,11 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
         setType,
         weightKg: lastSet ? lastSet.weightKg : 20,
         reps: lastSet ? lastSet.reps : 10,
-        isCompleted: false
+        isCompleted: false,
+        createdAt: now,
+        updatedAt: now,
+        syncStatus: SYNC_STATUS.PENDING_CREATE,
+        isDeleted: false
       };
       return {
         ...group,
@@ -409,16 +428,26 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
       durationSeconds: elapsedSeconds,
       totalVolumeKg: Math.round(finalVolume * 10) / 10,
       setsCount: completedSets.length,
-      status: 'completed'
+      status: 'completed',
+      updatedAt: now,
+      syncStatus: SYNC_STATUS.PENDING_CREATE,
+      isDeleted: false
     };
 
     try {
       // 1. 保存 Workout 主记录
       await db.workouts.put(completedWorkout);
 
-      // 2. 批量保存所有组记录
+      // 2. 批量保存所有组记录 (附带增量同步时间戳与状态)
       if (allSets.length > 0) {
-        await db.workoutSets.bulkPut(allSets);
+        const setsToSave: WorkoutSet[] = allSets.map(s => ({
+          ...s,
+          createdAt: s.createdAt || now,
+          updatedAt: s.completedAt || now,
+          syncStatus: SYNC_STATUS.PENDING_CREATE,
+          isDeleted: false
+        }));
+        await db.workoutSets.bulkPut(setsToSave);
       }
 
       // 3. 更新 PR 记录表
@@ -438,7 +467,11 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
               recordType: '1RM',
               value: est1RM,
               achievedAt: now,
-              workoutSetId: set.id
+              workoutSetId: set.id,
+              createdAt: now,
+              updatedAt: now,
+              syncStatus: SYNC_STATUS.PENDING_CREATE,
+              isDeleted: false
             };
             await db.personalRecords.put(newRecord);
           }
@@ -447,6 +480,15 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
 
       // 清除暂存草稿
       localStorage.removeItem(STORAGE_DRAFT_KEY);
+
+      // 刷新待推送条目计数并按需触发静默同步 (延迟 2 秒排队推送)
+      syncService.refreshPendingCount();
+      const cfg = syncService.getConfig();
+      if (cfg.autoSync && syncService.isConfigured()) {
+        setTimeout(() => {
+          syncService.triggerFullSync().catch(() => {});
+        }, 2000);
+      }
 
       // 弹出胜利特效
       try {

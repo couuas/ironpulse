@@ -44,7 +44,29 @@ export const EQUIPMENT_LABELS: Record<EquipmentType, string> = {
   other: '其他'
 };
 
-export interface Exercise {
+/**
+ * 增量同步状态枚举
+ * 0: 已与服务器一致 (synced)
+ * 1: 本地新建待推送 (pending_create)
+ * 2: 本地更新待推送 (pending_update)
+ * 3: 本地软删除待推送 (pending_delete)
+ */
+export type SyncStatus = 0 | 1 | 2 | 3;
+
+export const SYNC_STATUS = {
+  SYNCED: 0 as SyncStatus,
+  PENDING_CREATE: 1 as SyncStatus,
+  PENDING_UPDATE: 2 as SyncStatus,
+  PENDING_DELETE: 3 as SyncStatus,
+} as const;
+
+export interface SyncableEntity {
+  syncStatus?: SyncStatus;
+  updatedAt?: number;
+  isDeleted?: boolean;
+}
+
+export interface Exercise extends SyncableEntity {
   id: string;
   name: string;
   nameEn?: string;
@@ -60,7 +82,7 @@ export interface Exercise {
 
 export type SetType = 'normal' | 'warmup' | 'drop' | 'failure';
 
-export interface WorkoutSet {
+export interface WorkoutSet extends SyncableEntity {
   id: string;
   workoutId: string;
   exerciseId: string;
@@ -73,6 +95,8 @@ export interface WorkoutSet {
   isPR?: boolean;
   estimated1RM?: number;
   completedAt?: number;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface RoutineItem {
@@ -83,7 +107,7 @@ export interface RoutineItem {
   restSeconds: number;
 }
 
-export interface Routine {
+export interface Routine extends SyncableEntity {
   id: string;
   name: string;
   description: string;
@@ -95,7 +119,7 @@ export interface Routine {
 
 export type WorkoutStatus = 'active' | 'completed' | 'abandoned';
 
-export interface Workout {
+export interface Workout extends SyncableEntity {
   id: string;
   routineId?: string;
   name: string;
@@ -106,18 +130,22 @@ export interface Workout {
   setsCount: number;
   status: WorkoutStatus;
   note?: string;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
-export interface PersonalRecord {
+export interface PersonalRecord extends SyncableEntity {
   id: string;
   exerciseId: string;
   recordType: '1RM' | 'MaxWeight' | 'MaxVolume';
   value: number;
   achievedAt: number;
   workoutSetId?: string;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
-export interface BodyMeasurement {
+export interface BodyMeasurement extends SyncableEntity {
   id: string;
   date: string; // 格式: YYYY-MM-DD
   weightKg: number;
@@ -131,4 +159,31 @@ export interface BodyMeasurement {
   calvesCm?: number;     // 小腿围 (cm)
   note?: string;         // 备注 (如: 练后空腹、轻微水肿等)
   createdAt: number;
+  updatedAt?: number;
+}
+
+export interface SyncConfig {
+  serverUrl: string;
+  token: string;
+  username: string;
+  autoSync: boolean;
+}
+
+export interface SyncState {
+  status: 'idle' | 'syncing' | 'error' | 'success';
+  lastSyncTimestamp: number;
+  lastErrorMessage?: string;
+  pendingCount: number;
+  clockOffset?: number;
+  latencyMs?: number;
+}
+
+export interface PendingDetails {
+  workouts: Workout[];
+  workoutSets: WorkoutSet[];
+  exercises: Exercise[];
+  routines: Routine[];
+  bodyMeasurements: BodyMeasurement[];
+  personalRecords: PersonalRecord[];
+  total: number;
 }

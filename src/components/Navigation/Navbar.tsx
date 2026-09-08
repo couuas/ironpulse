@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Dumbbell, Activity, Calendar, History, BarChart2, 
-  SlidersHorizontal, Volume2, VolumeX, Vibrate, Scale, Database, BookOpen
+  SlidersHorizontal, Volume2, VolumeX, Vibrate, Scale, Database, BookOpen,
+  Cloud, RefreshCw
 } from 'lucide-react';
 import { useWorkout } from '../../context/WorkoutContext';
 import { formatDuration } from '../../services/calculations';
 import { feedback } from '../../services/feedback';
+import { syncService } from '../../services/syncService';
+import { SyncState } from '../../types/workout';
 
 export type NavTab = 'dashboard' | 'routines' | 'active' | 'exercises' | 'workouts' | 'analytics' | 'body';
 
@@ -14,17 +17,29 @@ interface NavbarProps {
   onSelectTab: (tab: NavTab) => void;
   onOpenPlateCalc?: () => void;
   onOpenDataManagement?: () => void;
+  onOpenCloudSync?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   onSelectTab,
   onOpenPlateCalc,
-  onOpenDataManagement
+  onOpenDataManagement,
+  onOpenCloudSync
 }) => {
   const { isWorkoutActive, elapsedSeconds } = useWorkout();
   const [soundEnabled, setSoundEnabled] = useState<boolean>(feedback.isSoundEnabled());
   const [vibrationEnabled, setVibrationEnabled] = useState<boolean>(feedback.isVibrationEnabled());
+  const [syncState, setSyncState] = useState<SyncState>(syncService.getState());
+  const [isConfigured, setIsConfigured] = useState<boolean>(syncService.isConfigured());
+
+  useEffect(() => {
+    const unsub = syncService.subscribe((s) => {
+      setSyncState(s);
+      setIsConfigured(syncService.isConfigured());
+    });
+    return unsub;
+  }, []);
 
   useEffect(() => {
     const unsubscribe = feedback.subscribe(() => {
@@ -225,6 +240,69 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
+            {/* 云端增量同步与多端协同入口 */}
+            {onOpenCloudSync && (
+              <button
+                onClick={onOpenCloudSync}
+                style={{
+                  height: '32px',
+                  padding: '0 9px',
+                  borderRadius: '8px',
+                  backgroundColor: syncState.status === 'error' 
+                    ? 'rgba(239, 68, 68, 0.1)' 
+                    : isConfigured 
+                      ? 'rgba(34, 197, 94, 0.08)' 
+                      : 'rgba(34, 197, 94, 0.05)',
+                  border: syncState.status === 'error'
+                    ? '1px solid rgba(239, 68, 68, 0.3)'
+                    : isConfigured
+                      ? '1px solid rgba(34, 197, 94, 0.25)'
+                      : '1px solid rgba(34, 197, 94, 0.2)',
+                  color: syncState.status === 'error'
+                    ? '#f87171'
+                    : isConfigured
+                      ? 'var(--neon-green)'
+                      : 'var(--text-secondary)',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  position: 'relative'
+                }}
+                title={
+                  !isConfigured 
+                    ? '本地模式 · 0ms 离线运行 · 数据100%留存本地 (点击可连接自建云)' 
+                    : syncState.status === 'syncing' 
+                      ? '正在同步数据...' 
+                      : syncState.status === 'error'
+                        ? `同步遇到异常: ${syncState.lastErrorMessage || '请检查网络'}`
+                        : `自建云已同步 (待推送: ${syncState.pendingCount} 条)`
+                }
+              >
+                {syncState.status === 'syncing' ? (
+                  <RefreshCw size={15} className="spin" color="var(--neon-green)" />
+                ) : (
+                  <Cloud size={15} color={isConfigured ? (syncState.status === 'error' ? '#f87171' : 'var(--neon-green)') : '#10b981'} />
+                )}
+                <span className="desktop-text-label" style={{ display: 'none' }}>
+                  {syncState.status === 'syncing' ? '同步中' : isConfigured ? '云同步' : '本地模式'}
+                </span>
+                {syncState.pendingCount > 0 && (
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    backgroundColor: '#eab308',
+                    position: 'absolute',
+                    top: '4px',
+                    right: '4px'
+                  }} />
+                )}
+              </button>
+            )}
+
             {/* 杠铃配重入口 */}
             {onOpenPlateCalc && (
               <button
@@ -306,21 +384,25 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </header>
 
-      {/* 移动端 / 平板触控底栏 (< 1024px 显示，均分 6 个模块，完美杜绝拥挤) */}
+      {/* 移动端 / 平板触控底栏 (< 1024px 显示，适配 iPhone 灵动岛/刘海与底部 Home 横条安全区) */}
       <div style={{
         position: 'fixed',
         bottom: 0,
         left: 0,
         right: 0,
-        height: '60px',
+        minHeight: 'calc(58px + env(safe-area-inset-bottom, 0px))',
+        height: 'calc(58px + env(safe-area-inset-bottom, 0px))',
         backgroundColor: 'rgba(12, 14, 20, 0.96)',
         backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
         borderTop: '1px solid var(--border-subtle)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'space-around',
         zIndex: 50,
-        paddingBottom: 'env(safe-area-inset-bottom, 2px)'
+        paddingTop: '6px',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        boxSizing: 'border-box'
       }} className="mobile-bottom-nav">
         {/* 1. 总览 */}
         <button 

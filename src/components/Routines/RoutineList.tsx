@@ -3,6 +3,8 @@ import { Play, Plus, Dumbbell, Trash2, Check, Sparkles } from 'lucide-react';
 import { Routine, Exercise } from '../../types/workout';
 import { db } from '../../db/db';
 import { useWorkout } from '../../context/WorkoutContext';
+import { softDeleteRoutine } from '../../db/syncRepo';
+import { syncService } from '../../services/syncService';
 
 interface RoutineListProps {
   onStartRoutine: () => void;
@@ -22,10 +24,10 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
   const [selectedExerciseIds, setSelectedExerciseIds] = useState<string[]>([]);
 
   const loadData = async () => {
-    const list = await db.routines.toArray();
-    setRoutines(list);
+    const rawList = await db.routines.toArray();
+    setRoutines(rawList.filter(r => !r.isDeleted));
 
-    const exs = await db.exercises.toArray();
+    const exs = (await db.exercises.toArray()).filter(e => !e.isDeleted);
     setAllExercises(exs);
     const map: Record<string, Exercise> = {};
     exs.forEach(e => { map[e.id] = e; });
@@ -50,23 +52,27 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
     e.preventDefault();
     if (!newRoutineName.trim()) return;
 
+    const now = Date.now();
     const newRoutine: Routine = {
-      id: `rt-custom-${Date.now()}`,
+      id: `rt-custom-${now}`,
       name: newRoutineName.trim(),
       description: newRoutineDesc.trim(),
       tags: newRoutineTags.split(/[,，]/).map(t => t.trim()).filter(Boolean),
       items: selectedExerciseIds.map((exId, idx) => ({
-        id: `item-${Date.now()}-${idx}`,
+        id: `item-${now}-${idx}`,
         exerciseId: exId,
         targetSets: 4,
         targetReps: '8-10',
         restSeconds: 90
       })),
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      createdAt: now,
+      updatedAt: now,
+      syncStatus: 1, // PENDING_CREATE
+      isDeleted: false
     };
 
     await db.routines.add(newRoutine);
+    await syncService.refreshPendingCount();
     setIsCreateModalOpen(false);
     setNewRoutineName('');
     setNewRoutineDesc('');
@@ -76,7 +82,8 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
 
   const handleDeleteRoutine = async (id: string, name: string) => {
     if (window.confirm(`确定要删除训练计划 “${name}” 吗？`)) {
-      await db.routines.delete(id);
+      await softDeleteRoutine(id);
+      await syncService.refreshPendingCount();
       loadData();
     }
   };

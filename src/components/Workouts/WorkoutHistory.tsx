@@ -3,6 +3,8 @@ import { History, Calendar, Clock, Dumbbell, Award, Trash2 } from 'lucide-react'
 import { Workout, WorkoutSet, Exercise } from '../../types/workout';
 import { db } from '../../db/db';
 import { formatDuration } from '../../services/calculations';
+import { softDeleteWorkout } from '../../db/syncRepo';
+import { syncService } from '../../services/syncService';
 
 export const WorkoutHistory: React.FC = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -10,19 +12,20 @@ export const WorkoutHistory: React.FC = () => {
   const [exercisesMap, setExercisesMap] = useState<Record<string, Exercise>>({});
 
   const loadData = async () => {
-    const list = await db.workouts
+    const rawList = await db.workouts
       .where('status')
       .equals('completed')
       .reverse()
       .sortBy('startTime');
+    const list = rawList.filter(w => !w.isDeleted);
     setWorkouts(list);
 
-    const exs = await db.exercises.toArray();
+    const exs = (await db.exercises.toArray()).filter(e => !e.isDeleted);
     const eMap: Record<string, Exercise> = {};
     exs.forEach(e => { eMap[e.id] = e; });
     setExercisesMap(eMap);
 
-    const sets = await db.workoutSets.toArray();
+    const sets = (await db.workoutSets.toArray()).filter(s => !s.isDeleted);
     const sMap: Record<string, WorkoutSet[]> = {};
     sets.forEach(s => {
       if (!sMap[s.workoutId]) sMap[s.workoutId] = [];
@@ -37,8 +40,8 @@ export const WorkoutHistory: React.FC = () => {
 
   const handleDelete = async (workoutId: string) => {
     if (window.confirm('确定要删除这条历史训练记录吗？')) {
-      await db.workouts.delete(workoutId);
-      await db.workoutSets.where('workoutId').equals(workoutId).delete();
+      await softDeleteWorkout(workoutId);
+      await syncService.refreshPendingCount();
       loadData();
     }
   };

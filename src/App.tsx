@@ -12,16 +12,50 @@ import { BodyTracker } from './components/Body/BodyTracker';
 import { RestTimerBar } from './components/ActiveWorkout/RestTimerBar';
 import { PlateCalculatorModal } from './components/ActiveWorkout/PlateCalculatorModal';
 import { DataManagementModal } from './components/Settings/DataManagementModal';
+import { CloudSyncModal } from './components/Settings/CloudSyncModal';
 import { PWAInstallBanner } from './components/Navigation/PWAInstallBanner';
+import { syncService } from './services/syncService';
 
 export function AppContent() {
   const [currentTab, setCurrentTab] = useState<NavTab>('dashboard');
   const [isPlateModalOpen, setIsPlateModalOpen] = useState<boolean>(false);
   const [isDataModalOpen, setIsDataModalOpen] = useState<boolean>(false);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // 首次启动注入预置动作与经典模板
     initializeDatabaseSeed();
+
+    // 如果已配置自建服务器，启动时静默触发一次 Pull -> Push
+    if (syncService.isConfigured()) {
+      syncService.triggerFullSync().catch(() => {});
+    }
+
+    // 监听网络恢复事件 (online)，自动触发静默同步
+    const handleOnline = () => {
+      console.log('📡 网络已恢复，正在后台触发静默同步...');
+      if (syncService.isConfigured()) {
+        syncService.triggerFullSync().catch(() => {});
+      }
+    };
+
+    // 页面切回前台时，若距离上次同步大于 5 分钟，自动静默同步
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && syncService.isConfigured()) {
+        const lastSync = syncService.getState().lastSyncTimestamp;
+        if (Date.now() - lastSync > 5 * 60 * 1000) {
+          syncService.triggerFullSync().catch(() => {});
+        }
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   return (
@@ -31,6 +65,7 @@ export function AppContent() {
         onSelectTab={setCurrentTab}
         onOpenPlateCalc={() => setIsPlateModalOpen(true)}
         onOpenDataManagement={() => setIsDataModalOpen(true)}
+        onOpenCloudSync={() => setIsSyncModalOpen(true)}
       />
 
       <main style={{ flex: 1 }}>
@@ -76,7 +111,18 @@ export function AppContent() {
         <DataManagementModal
           onClose={() => setIsDataModalOpen(false)}
           onDataChanged={() => {
-            // 数据变动后可触发刷新当前视图
+            syncService.refreshPendingCount();
+          }}
+          onOpenCloudSync={() => setIsSyncModalOpen(true)}
+        />
+      )}
+
+      {/* v0.0.2 云端增量协同与多端同步弹窗 */}
+      {isSyncModalOpen && (
+        <CloudSyncModal
+          onClose={() => setIsSyncModalOpen(false)}
+          onDataSynced={() => {
+            // 同步完成后如需可触发刷新
           }}
         />
       )}

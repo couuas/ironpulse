@@ -61,11 +61,13 @@
   margin: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 html, body {
   width: 100%;
   min-height: 100%;
+  min-height: 100dvh;
   background-color: var(--bg-base);
   color: var(--text-main);
   font-family: var(--font-sans);
@@ -73,6 +75,8 @@ html, body {
   line-height: 1.5;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
 }
 
 /* 数字等宽排版全局应用 */
@@ -196,7 +200,7 @@ input:focus, select:focus, textarea:focus {
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 20px 100px;
+  padding: 24px 20px calc(100px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 1024px) {
@@ -236,7 +240,7 @@ input:focus, select:focus, textarea:focus {
 /* 移动端专属自适应响应式规范 (解决小屏按钮溢出与截断) */
 @media (max-width: 640px) {
   .desktop-workstation-container {
-    padding: 14px 12px 90px !important;
+    padding: 14px 12px calc(92px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* 移动端表格横向自适应滚动容器 */
@@ -260,5 +264,20 @@ input:focus, select:focus, textarea:focus {
   .mobile-btn-wrap {
     flex-wrap: wrap !important;
   }
+}
+
+/* iOS Safari 核心优化：
+   1. 输入框基准字体 >= 16px，杜绝聚焦时页面恶心自动放大 (Auto-Zoom Bug)
+   2. 弹性滚动阻尼与模态防穿透
+*/
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+.modal-scroll-lock {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 

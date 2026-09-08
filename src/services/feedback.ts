@@ -36,6 +36,13 @@ class FeedbackService {
     };
   }
 
+  /**
+   * 针对 iOS Safari WebKit 音频上下文策略：在用户首次点击/触控时预热并解锁 AudioContext
+   */
+  public initAudio(): AudioContext | null {
+    return this.getAudioContext();
+  }
+
   private getAudioContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
     if (!this.audioCtx) {
