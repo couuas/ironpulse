@@ -82,23 +82,15 @@ export const BodyTracker: React.FC = () => {
 
   return (
     <div className="desktop-workstation-container">
-      {/* 顶部标题条与操作按钮 (自适应防拥挤) */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '20px',
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {/* 统一顶栏 */}
+      <div className="page-header">
+        <div className="page-title-group">
+          <div className="page-title-meta">
             <span className="badge-neon">BODY METRICS</span>
             <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>7-Day Moving Average</span>
           </div>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
-            体态与体重趋势追踪
-          </h1>
+          <h1 className="page-title">体态与体重趋势追踪</h1>
+          <p className="page-subtitle">7 日滑动均线滤噪 · 体脂与腰围多维度时序分析</p>
         </div>
 
         <button
@@ -106,117 +98,74 @@ export const BodyTracker: React.FC = () => {
             setEditingRecord(null);
             setIsModalOpen(true);
           }}
-          className="body-record-btn"
-          style={{
-            padding: '9px 18px',
-            borderRadius: '10px',
-            backgroundColor: 'var(--neon-green)',
-            color: '#07080b',
-            fontWeight: 800,
-            fontSize: '13px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: 'pointer',
-            boxShadow: '0 0 16px var(--neon-green-glow)',
-            flexShrink: 0
-          }}
+          className="page-action-btn"
         >
-          <Plus size={16} strokeWidth={2.8} />
+          <Plus size={15} strokeWidth={2.8} />
           <span>记录今日体态</span>
         </button>
       </div>
 
-      {/* 核心 KPI 汇总缎带 (自适应小屏) */}
+      {/* 核心 KPI 汇总卡 (统一极简规范) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
         gap: '12px',
-        marginBottom: '24px'
+        marginBottom: '20px'
       }}>
         {/* 当前真实体重 */}
-        <div style={{
-          backgroundColor: 'var(--bg-surface)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '16px 18px',
-          border: '1px solid var(--border-subtle)'
-        }}>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-            当前实测体重
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
+            <span>当前实测体重</span>
+            <Scale size={15} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            <span style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)' }} className="font-mono">
-              {summary.currentWeight > 0 ? summary.currentWeight : '--'}
-            </span>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>kg</span>
+          <div className="metric-card-value font-mono">
+            {summary.currentWeight > 0 ? summary.currentWeight : '--'}<span className="metric-card-unit">kg</span>
           </div>
+          <div className="metric-card-sub">每日晨起空腹实测</div>
         </div>
 
         {/* 7 日滑动平均 (7MA) */}
-        <div style={{
-          backgroundColor: 'var(--bg-surface)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '16px 18px',
-          border: '1px solid rgba(34, 197, 94, 0.3)',
-          boxShadow: '0 4px 20px rgba(34, 197, 94, 0.06)'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--neon-green)', fontWeight: 700 }}>
-              7日平滑均线 (7MA)
-            </span>
-            <span style={{ fontSize: '10px', color: 'var(--text-dim)' }} title="滤除水钠储留">无噪真重</span>
+        <div className="metric-card-crisp" style={{ borderColor: 'rgba(34, 197, 94, 0.3)' }}>
+          <div className="metric-card-header">
+            <span style={{ color: 'var(--neon-green)' }}>7日平滑均线 (7MA)</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-dim)' }}>无噪真重</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            <span style={{ fontSize: '28px', fontWeight: 800, color: 'var(--neon-green)' }} className="font-mono">
-              {summary.currentMA7 > 0 ? summary.currentMA7 : '--'}
-            </span>
-            <span style={{ fontSize: '13px', color: 'var(--neon-green)' }}>kg</span>
+          <div className="metric-card-value font-mono" style={{ color: 'var(--neon-green)' }}>
+            {summary.currentMA7 > 0 ? summary.currentMA7 : '--'}<span className="metric-card-unit" style={{ color: 'var(--neon-green)' }}>kg</span>
           </div>
+          <div className="metric-card-sub" style={{ color: 'var(--neon-green)' }}>滤除水钠与糖原波动</div>
         </div>
 
         {/* 7 日平滑净变化 */}
-        <div style={{
-          backgroundColor: 'var(--bg-surface)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '16px 18px',
-          border: '1px solid var(--border-subtle)'
-        }}>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-            近 7 天净变化
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
+            <span>近 7 天净变化</span>
             {summary.ma7Change7d > 0 ? (
-              <TrendingUp size={20} color="var(--accent-blue)" />
-            ) : (summary.ma7Change7d < 0 ? (
-              <TrendingDown size={20} color="var(--neon-green)" />
+              <TrendingUp size={15} color="var(--accent-blue)" />
+            ) : summary.ma7Change7d < 0 ? (
+              <TrendingDown size={15} color="var(--neon-green)" />
             ) : (
-              <Minus size={20} color="var(--text-dim)" />
-            ))}
-            <span style={{
-              fontSize: '24px',
-              fontWeight: 800,
-              color: summary.ma7Change7d > 0 ? 'var(--accent-blue)' : (summary.ma7Change7d < 0 ? 'var(--neon-green)' : 'var(--text-secondary)')
-            }} className="font-mono">
-              {formatWeightDelta(summary.ma7Change7d)}
-            </span>
+              <Minus size={15} color="var(--text-dim)" />
+            )}
           </div>
+          <div className="metric-card-value font-mono" style={{
+            color: summary.ma7Change7d > 0 ? 'var(--accent-blue)' : (summary.ma7Change7d < 0 ? 'var(--neon-green)' : 'var(--text-secondary)')
+          }}>
+            {formatWeightDelta(summary.ma7Change7d)}
+          </div>
+          <div className="metric-card-sub">7MA 速率跟踪</div>
         </div>
 
         {/* 30 天长期趋势 */}
-        <div style={{
-          backgroundColor: 'var(--bg-surface)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '16px 18px',
-          border: '1px solid var(--border-subtle)'
-        }}>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-            近 30 天净变化
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
+            <span>近 30 天净变化</span>
+            <Activity size={15} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-            <span style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)' }} className="font-mono">
-              {formatWeightDelta(summary.weightChange30d)}
-            </span>
+          <div className="metric-card-value font-mono">
+            {formatWeightDelta(summary.weightChange30d)}
           </div>
+          <div className="metric-card-sub">中长周期增肌/减脂趋势</div>
         </div>
       </div>
 

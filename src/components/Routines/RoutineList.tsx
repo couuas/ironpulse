@@ -90,43 +90,37 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
 
   return (
     <div className="desktop-workstation-container">
-      {/* 头部标题与新建按钮 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
-            分化训练计划
-          </h1>
-          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            管理周期化训练方案（PPL、上下肢、专注日）· 支持一键实例化直接开练
-          </p>
+      {/* 统一顶栏 */}
+      <div className="page-header">
+        <div className="page-title-group">
+          <div className="page-title-meta">
+            <span className="badge-neon">ROUTINE TEMPLATES</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>周期化分化方案</span>
+          </div>
+          <h1 className="page-title">分化训练计划</h1>
+          <p className="page-subtitle">管理周期化方案（PPL、上下肢、专注日）· 支持一键实例化直接开练</p>
         </div>
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          style={{
-            padding: '10px 18px',
-            borderRadius: '10px',
-            backgroundColor: 'var(--neon-green)',
-            color: '#07080b',
-            fontWeight: 800,
-            fontSize: '13px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: 'pointer',
-            boxShadow: '0 0 12px var(--neon-green-glow)'
-          }}
+          className="page-action-btn"
         >
-          <Plus size={16} strokeWidth={2.8} />
-          <span>新建分化计划</span>
+          <Plus size={15} strokeWidth={2.8} />
+          <span>新建计划</span>
         </button>
       </div>
 
-      {/* 大屏响应式多列卡片网格 (支持 280px 移动端自适应) */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px'
-      }}>
+      {/* 计划列表或空状态 */}
+      {routines.length === 0 ? (
+        <div className="empty-state-crisp">
+          <Dumbbell size={36} color="var(--text-dim)" />
+          <p style={{ margin: 0, fontSize: '13px' }}>暂无训练计划模板，点击右上角「新建计划」快速创建！</p>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '20px'
+        }}>
         {routines.map(routine => (
           <div
             key={routine.id}
@@ -254,6 +248,7 @@ export const RoutineList: React.FC<RoutineListProps> = ({ onStartRoutine }) => {
           </div>
         ))}
       </div>
+      )}
 
       {/* 新建训练计划 Modal */}
       {isCreateModalOpen && (

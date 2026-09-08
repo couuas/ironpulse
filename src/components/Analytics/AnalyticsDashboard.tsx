@@ -124,61 +124,19 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onNaviga
   }, [recentDayVolumes]);
 
   return (
-    <div style={{
-      maxWidth: '1440px',
-      margin: '0 auto',
-      padding: '24px 20px 80px 20px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '24px'
-    }}>
-      {/* 顶部标题与状态横幅 */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '16px'
-      }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, var(--neon-green), #15803d)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#07080b',
-              boxShadow: '0 0 16px var(--neon-green-glow)'
-            }}>
-              <BarChart2 size={22} strokeWidth={2.5} />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
-                深度数据分析工作台
-              </h1>
-              <span style={{ fontSize: '13px', color: 'var(--text-dim)' }}>
-                生理肌群负荷热力图 · 1RM 极限推算曲线 · 力量举三大项 PR
-              </span>
-            </div>
+    <div className="desktop-workstation-container" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* 统一顶栏 */}
+      <div className="page-header">
+        <div className="page-title-group">
+          <div className="page-title-meta">
+            <span className="badge-neon">ANALYTICS & BIOMECHANICS</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>EPLEY DAMPED ALGORITHM</span>
           </div>
+          <h1 className="page-title">深度数据分析工作台</h1>
+          <p className="page-subtitle">生理肌群负荷热力图 · 1RM 极限推算曲线 · 力量举三大项 PR</p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{
-            fontSize: '11px',
-            fontWeight: 800,
-            letterSpacing: '0.5px',
-            color: 'var(--neon-green)',
-            backgroundColor: 'var(--neon-green-dim)',
-            padding: '4px 10px',
-            borderRadius: '6px',
-            border: '1px solid rgba(34, 197, 94, 0.25)'
-          }}>
-            EPLEY DAMPED ALGORITHM
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{
             fontSize: '11px',
             fontWeight: 800,
@@ -194,77 +152,59 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onNaviga
         </div>
       </div>
 
-      {/* 四大核心指标卡片条 (KPI Ribbon - 支持小屏 145px 自适应 2x2 网格) */}
+      {/* 四大核心指标卡片条 (统一极简规范) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))',
         gap: '12px'
       }}>
-        <div style={kpiCardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
             <span>三大项总成绩 (SBD)</span>
-            <Trophy size={16} color="var(--gold-pr)" />
+            <Trophy size={15} color="var(--gold-pr)" />
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '8px' }}>
-            <span className="font-mono" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--gold-pr)' }}>
-              {bigThree.bigThreeTotal > 0 ? bigThree.bigThreeTotal : '--'}
-            </span>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>kg</span>
+          <div className="metric-card-value font-mono" style={{ color: 'var(--gold-pr)' }}>
+            {bigThree.bigThreeTotal > 0 ? bigThree.bigThreeTotal : '--'}<span className="metric-card-unit">kg</span>
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '4px' }}>
-            卧推 {bigThree.benchPressMax1RM}kg / 深蹲 {bigThree.squatMax1RM}kg / 硬拉 {bigThree.deadliftMax1RM}kg
+          <div className="metric-card-sub">
+            卧推 {bigThree.benchPressMax1RM} / 深蹲 {bigThree.squatMax1RM} / 硬拉 {bigThree.deadliftMax1RM}
           </div>
         </div>
 
-        <div style={kpiCardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
-            <span>有效硬组数累计 (7天)</span>
-            <Activity size={16} color="var(--neon-green)" />
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
+            <span>有效硬组数 (7天)</span>
+            <Activity size={15} color="var(--neon-green)" />
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '8px' }}>
-            <span className="font-mono" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--neon-green)' }}>
-              {summaryMetrics.totalHardSets}
-            </span>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>组</span>
+          <div className="metric-card-value font-mono" style={{ color: 'var(--neon-green)' }}>
+            {summaryMetrics.totalHardSets}<span className="metric-card-unit">组</span>
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '4px' }}>
-            主训 1.0 加权，协同 0.5 辅助加权
+          <div className="metric-card-sub">主训 1.0 加权，协同 0.5 辅助</div>
+        </div>
+
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
+            <span>增肌黄金区间</span>
+            <Flame size={15} color="var(--neon-green)" />
+          </div>
+          <div className="metric-card-value font-mono">
+            {summaryMetrics.hypertrophyCount}<span className="metric-card-unit">/ 10 部位</span>
+          </div>
+          <div className="metric-card-sub">
+            维持 {muscleLoads.filter(m => m.status === 'maintenance').length} 个，恢复 {summaryMetrics.recoveryCount} 个
           </div>
         </div>
 
-        <div style={kpiCardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
-            <span>增肌黄金区间部位</span>
-            <Flame size={16} color="var(--neon-green)" />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '8px' }}>
-            <span className="font-mono" style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-main)' }}>
-              {summaryMetrics.hypertrophyCount}
-            </span>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>/ 10 部位</span>
-          </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '4px' }}>
-            维持容积 {muscleLoads.filter(m => m.status === 'maintenance').length} 个，充分恢复 {summaryMetrics.recoveryCount} 个
-          </div>
-        </div>
-
-        <div style={kpiCardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
             <span>疲劳预警部位</span>
-            <Zap size={16} color={summaryMetrics.fatigueCount > 0 ? 'var(--accent-red)' : 'var(--text-dim)'} />
+            <Zap size={15} color={summaryMetrics.fatigueCount > 0 ? '#f43f5e' : 'var(--text-dim)'} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '8px' }}>
-            <span className="font-mono" style={{ 
-              fontSize: '32px', 
-              fontWeight: 800, 
-              color: summaryMetrics.fatigueCount > 0 ? 'var(--accent-red)' : 'var(--text-main)' 
-            }}>
-              {summaryMetrics.fatigueCount}
-            </span>
-            <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>部位</span>
+          <div className="metric-card-value font-mono" style={{ color: summaryMetrics.fatigueCount > 0 ? '#f43f5e' : 'var(--text-main)' }}>
+            {summaryMetrics.fatigueCount}<span className="metric-card-unit">部位</span>
           </div>
-          <div style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '4px' }}>
-            {summaryMetrics.fatigueCount > 0 ? '部分肌群负荷 ≥19 组，建议安排减载日' : '各部位恢复良好，无过度训练风险'}
+          <div className="metric-card-sub" style={{ color: summaryMetrics.fatigueCount > 0 ? '#f43f5e' : 'var(--text-dim)' }}>
+            {summaryMetrics.fatigueCount > 0 ? '超量训练，建议安排减载' : '负荷适中无过度疲劳'}
           </div>
         </div>
       </div>

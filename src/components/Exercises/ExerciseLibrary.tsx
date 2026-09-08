@@ -70,48 +70,30 @@ export const ExerciseLibrary: React.FC = () => {
 
   return (
     <div className="desktop-workstation-container">
-      {/* 头部与新增按钮 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
-            科学力量动作库
-          </h1>
-          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            收录 {exercises.length} 个解剖学力量动作 · 支持多端离线智能检索与个性化扩展
-          </p>
+      {/* 统一顶栏 */}
+      <div className="page-header">
+        <div className="page-title-group">
+          <div className="page-title-meta">
+            <span className="badge-neon">EXERCISE DIRECTORY</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>收录 {exercises.length} 个动作</span>
+          </div>
+          <h1 className="page-title">科学力量动作库</h1>
+          <p className="page-subtitle">解剖学肌肉归类 · 多端离线智能检索与个性化扩展</p>
         </div>
         <button
           onClick={() => setIsNewModalOpen(true)}
-          style={{
-            padding: '10px 18px',
-            borderRadius: '10px',
-            backgroundColor: 'var(--neon-green)',
-            color: '#07080b',
-            fontWeight: 800,
-            fontSize: '13px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: 'pointer',
-            boxShadow: '0 0 12px var(--neon-green-glow)'
-          }}
+          className="page-action-btn"
         >
-          <Plus size={16} strokeWidth={2.8} />
+          <Plus size={15} strokeWidth={2.8} />
           <span>自定义动作</span>
         </button>
       </div>
 
-      {/* 搜索栏与过滤面板 */}
-      <div style={{
-        padding: '20px',
-        borderRadius: 'var(--radius-xl)',
-        backgroundColor: 'var(--bg-surface)',
-        border: '1px solid var(--border-subtle)',
-        marginBottom: '24px'
-      }}>
-        {/* 搜索框 */}
-        <div style={{ position: 'relative', marginBottom: '16px' }}>
-          <Search size={18} color="var(--text-dim)" style={{ position: 'absolute', left: '16px', top: '14px' }} />
+      {/* 统一干练筛选控制条 */}
+      <div className="filter-bar-crisp">
+        {/* 搜索输入 */}
+        <div style={{ position: 'relative' }}>
+          <Search size={15} color="var(--text-dim)" style={{ position: 'absolute', left: '12px', top: '11px' }} />
           <input
             type="text"
             placeholder="搜索动作中文名称、英文别名 (如: 卧推, OHP, 深蹲, 划船, 弯举)..."
@@ -119,47 +101,57 @@ export const ExerciseLibrary: React.FC = () => {
             onChange={e => setSearchQuery(e.target.value)}
             style={{
               width: '100%',
-              padding: '12px 18px 12px 46px',
-              fontSize: '14px',
+              height: '36px',
+              padding: '0 12px 0 34px',
+              fontSize: '13px',
               borderRadius: 'var(--radius-sm)'
             }}
           />
         </div>
 
-        {/* 肌群横向过滤 Tabs */}
+        {/* 肌群横向过滤药丸 */}
         <div style={{
           display: 'flex',
-          gap: '8px',
+          gap: '6px',
           overflowX: 'auto',
-          paddingBottom: '10px',
-          marginBottom: '14px',
+          paddingBottom: '2px',
           scrollbarWidth: 'none'
         }}>
           <button
             onClick={() => setSelectedMuscle('all')}
-            style={filterTabStyle(selectedMuscle === 'all')}
+            className={`pill-tab ${selectedMuscle === 'all' ? 'active' : ''}`}
           >
-            全部肌群
+            全部肌群 ({exercises.length})
           </button>
-          {Object.entries(MUSCLE_GROUP_LABELS).map(([key, label]) => (
-            <button
-              key={key}
-              onClick={() => setSelectedMuscle(key)}
-              style={filterTabStyle(selectedMuscle === key)}
-            >
-              {label}
-            </button>
-          ))}
+          {Object.entries(MUSCLE_GROUP_LABELS).map(([key, label]) => {
+            const count = exercises.filter(e => e.targetMuscle === key).length;
+            return (
+              <button
+                key={key}
+                onClick={() => setSelectedMuscle(key)}
+                className={`pill-tab ${selectedMuscle === key ? 'active' : ''}`}
+              >
+                {label} ({count})
+              </button>
+            );
+          })}
         </div>
 
-        {/* 器械类型快捷标签 */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-dim)', fontWeight: 700, marginRight: '4px' }}>
-            器械分类:
+        {/* 器械类型横向过滤药丸 */}
+        <div style={{
+          display: 'flex',
+          gap: '6px',
+          overflowX: 'auto',
+          alignItems: 'center',
+          scrollbarWidth: 'none'
+        }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-dim)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+            器械:
           </span>
           <button
             onClick={() => setSelectedEquipment('all')}
-            style={equipmentChipStyle(selectedEquipment === 'all')}
+            className={`pill-tab ${selectedEquipment === 'all' ? 'active' : ''}`}
+            style={{ padding: '3px 10px', fontSize: '11px' }}
           >
             全部
           </button>
@@ -167,7 +159,8 @@ export const ExerciseLibrary: React.FC = () => {
             <button
               key={eq}
               onClick={() => setSelectedEquipment(eq)}
-              style={equipmentChipStyle(selectedEquipment === eq)}
+              className={`pill-tab ${selectedEquipment === eq ? 'active' : ''}`}
+              style={{ padding: '3px 10px', fontSize: '11px' }}
             >
               {label}
             </button>
@@ -182,16 +175,9 @@ export const ExerciseLibrary: React.FC = () => {
         gap: '16px'
       }}>
         {filteredExercises.length === 0 ? (
-          <div style={{
-            gridColumn: '1 / -1',
-            padding: '60px 20px',
-            textAlign: 'center',
-            backgroundColor: 'var(--bg-surface)',
-            borderRadius: 'var(--radius-lg)',
-            border: '1px dashed var(--border-subtle)',
-            color: 'var(--text-muted)'
-          }}>
-            未找到匹配的训练动作，请尝试更换检索关键词
+          <div className="empty-state-crisp" style={{ gridColumn: '1 / -1' }}>
+            <Dumbbell size={36} color="var(--text-dim)" />
+            <p style={{ margin: 0, fontSize: '13px' }}>未找到匹配的训练动作，请尝试更换检索关键词或分类</p>
           </div>
         ) : (
           filteredExercises.map(ex => (

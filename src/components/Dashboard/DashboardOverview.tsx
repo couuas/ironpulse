@@ -104,34 +104,26 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         </div>
       )}
 
-      {/* 仪表盘欢迎与顶栏快捷工具入口 (自适应防拥挤) */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '20px',
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {/* 统一顶栏 */}
+      <div className="page-header">
+        <div className="page-title-group">
+          <div className="page-title-meta">
             <span className="badge-neon">LOCAL-FIRST WORKSTATION</span>
             <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>极速离线 · 科学力量管理</span>
           </div>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-main)', marginTop: '4px' }}>
-            训练仪表盘概览
-          </h1>
+          <h1 className="page-title">训练仪表盘概览</h1>
+          <p className="page-subtitle">多端实时协同 · 核心指标与快速训练入口</p>
         </div>
 
-        {/* 顶部快捷操作栏：大屏舒展胶囊，小屏并排紧凑网格，绝不挤压卡片 */}
+        {/* 顶部快捷操作栏：大屏舒展胶囊，小屏并排紧凑网格 */}
         <div className="dashboard-top-quick-actions">
           <button
             onClick={() => onNavigate('body')}
             className="quick-action-btn quick-action-blue"
             title="查看体态追踪与 7MA 平滑曲线"
           >
-            <Scale size={15} />
-            <span className="quick-action-label-full">体态与 7MA 均线 →</span>
+            <Scale size={14} />
+            <span className="quick-action-label-full">体态 7MA →</span>
             <span className="quick-action-label-short">体态 7MA</span>
           </button>
 
@@ -140,8 +132,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
             className="quick-action-btn quick-action-green"
             title="查看全周期肌群热力图与 1RM 极限曲线"
           >
-            <BarChart2 size={15} />
-            <span className="quick-action-label-full">肌群热力与 1RM 深度 →</span>
+            <BarChart2 size={14} />
+            <span className="quick-action-label-full">深度分析 →</span>
             <span className="quick-action-label-short">深度分析</span>
           </button>
 
@@ -151,61 +143,66 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
             title="打开杠铃片配重计算器"
           >
             <SlidersHorizontal size={14} color="var(--neon-green)" />
-            <span className="quick-action-label-full">杠铃配重计算</span>
+            <span className="quick-action-label-full">杠铃配重</span>
             <span className="quick-action-label-short">杠铃配重</span>
           </button>
         </div>
       </div>
 
-      {/* 四大核心数据看板统计卡 (自适应栅格) */}
+      {/* 四大核心数据看板统计卡 (统一极简规范) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
         gap: '12px',
-        marginBottom: '28px'
+        marginBottom: '24px'
       }}>
-        <div style={statCardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
             <span>累计打卡场次</span>
-            <History size={16} />
+            <History size={15} />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--text-main)', marginTop: '6px' }} className="font-mono">
-            {recentWorkouts.length} <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>次</span>
+          <div className="metric-card-value font-mono">
+            {recentWorkouts.length}<span className="metric-card-unit">次</span>
           </div>
+          <div className="metric-card-sub">历史完成记录</div>
         </div>
 
         <div 
-          style={{ ...statCardStyle, cursor: 'pointer' }}
+          className="metric-card-crisp"
+          style={{ cursor: 'pointer' }}
           onClick={() => onNavigate('analytics')}
           title="点击进入 PR 荣誉殿堂"
         >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+          <div className="metric-card-header">
             <span>打破历史 PR</span>
-            <Award size={16} color="var(--gold-pr)" />
+            <Award size={15} color="var(--gold-pr)" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--gold-pr)', marginTop: '6px' }} className="font-mono">
-            {prCount} <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>项</span>
+          <div className="metric-card-value font-mono" style={{ color: 'var(--gold-pr)' }}>
+            {prCount}<span className="metric-card-unit">项</span>
           </div>
+          <div className="metric-card-sub" style={{ color: 'var(--gold-pr)' }}>极限突破里程碑 →</div>
         </div>
 
-        <div style={statCardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
             <span>近期累计容量</span>
-            <TrendingUp size={16} color="var(--neon-green)" />
+            <TrendingUp size={15} color="var(--neon-green)" />
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--neon-green)', marginTop: '6px' }} className="font-mono">
-            {totalAllTimeVolume} <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>kg</span>
+          <div className="metric-card-value font-mono" style={{ color: 'var(--neon-green)' }}>
+            {totalAllTimeVolume}<span className="metric-card-unit">kg</span>
           </div>
+          <div className="metric-card-sub">周期有效训练量</div>
         </div>
 
-        <div style={statCardStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '12px', fontWeight: 700 }}>
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
             <span>存储引擎状态</span>
-            <Target size={16} color="var(--tech-blue)" />
+            <Target size={15} color="var(--tech-blue)" />
           </div>
-          <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--tech-blue)', marginTop: '10px' }}>
-            IndexedDB 离线
+          <div className="metric-card-value" style={{ fontSize: '20px', color: 'var(--tech-blue)', marginTop: '8px' }}>
+            IndexedDB
           </div>
+          <div className="metric-card-sub" style={{ color: 'var(--tech-blue)' }}>100% 本地优先</div>
         </div>
       </div>
 

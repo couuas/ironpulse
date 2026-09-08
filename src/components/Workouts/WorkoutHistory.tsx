@@ -46,28 +46,74 @@ export const WorkoutHistory: React.FC = () => {
     }
   };
 
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+  const thisMonthCount = workouts.filter(w => {
+    const d = new Date(w.startTime);
+    return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+  }).length;
+  const totalVolume = workouts.reduce((sum, w) => sum + (w.totalVolumeKg || 0), 0);
+
   return (
     <div className="desktop-workstation-container">
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-main)', letterSpacing: '-0.5px' }}>
-          训练历史与复盘日志
-        </h1>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          累计完成 {workouts.length} 次训练打卡 · 记录每一组负荷与极限突破
-        </p>
+      {/* 统一顶栏 */}
+      <div className="page-header">
+        <div className="page-title-group">
+          <div className="page-title-meta">
+            <span className="badge-neon">WORKOUT LOGS</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-dim)' }}>全量训练记录与复盘</span>
+          </div>
+          <h1 className="page-title">训练历史与复盘日志</h1>
+          <p className="page-subtitle">累计完成 {workouts.length} 次训练打卡 · 记录每一组负荷与极限突破</p>
+        </div>
+      </div>
+
+      {/* 核心历史指标卡 */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+        gap: '12px',
+        marginBottom: '20px'
+      }}>
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
+            <span>历史总场次</span>
+            <History size={15} />
+          </div>
+          <div className="metric-card-value font-mono">
+            {workouts.length}<span className="metric-card-unit">次</span>
+          </div>
+          <div className="metric-card-sub">全周期打卡记录</div>
+        </div>
+
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
+            <span>本月坚持</span>
+            <Calendar size={15} color="var(--neon-green)" />
+          </div>
+          <div className="metric-card-value font-mono" style={{ color: 'var(--neon-green)' }}>
+            {thisMonthCount}<span className="metric-card-unit">次</span>
+          </div>
+          <div className="metric-card-sub">本月训练活跃度</div>
+        </div>
+
+        <div className="metric-card-crisp">
+          <div className="metric-card-header">
+            <span>历史累计容量</span>
+            <Dumbbell size={15} color="var(--tech-blue)" />
+          </div>
+          <div className="metric-card-value font-mono" style={{ color: 'var(--tech-blue)' }}>
+            {totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}k` : totalVolume}<span className="metric-card-unit">kg</span>
+          </div>
+          <div className="metric-card-sub">累计推动总重</div>
+        </div>
       </div>
 
       {workouts.length === 0 ? (
-        <div style={{
-          padding: '60px 20px',
-          textAlign: 'center',
-          backgroundColor: 'var(--bg-surface)',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px dashed var(--border-subtle)',
-          color: 'var(--text-muted)'
-        }}>
-          <History size={40} color="var(--text-dim)" style={{ margin: '0 auto 16px' }} />
-          <p>暂无已完成的训练记录，选择一份分化计划开始你的初次打卡！</p>
+        <div className="empty-state-crisp">
+          <History size={36} color="var(--text-dim)" />
+          <p style={{ margin: 0, fontSize: '13px' }}>暂无已完成的训练记录，选择一份分化计划开始你的初次打卡！</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
